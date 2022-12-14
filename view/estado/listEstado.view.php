@@ -11,7 +11,9 @@
 			<thead>
 				<tr>
 					<th>Id</th>
-					<th>Fecha Reporte</th>
+					<th># Documento</th>
+                    <th>Cargo</th>
+                    <th>CeCo</th>
 					<th>Año</th>
 					<th>Mes</th>
 					<th>Aprobador</th>

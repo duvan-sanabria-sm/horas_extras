@@ -58,6 +58,7 @@
         <script src="../assets/js/dataTables.buttons.min.js"></script>
         <script src="../assets/js/datatables.min.js"></script>
         <script src="../assets/js/jquery.dataTables.min.js"></script>
+        <script src="../assets/js/sweetalert.min.js"></script>
         
         <?php include_once('./shared/footer.php')?>
 

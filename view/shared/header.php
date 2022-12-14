@@ -54,11 +54,13 @@
                     
                         } 
                     ?>
-					
+
                     <li id="user">
+                        <span style="font-size: 25px;" class="icon solid fa fa-user-circle fi"></span>
                         <a href="#" id="usuarioLogin"><?php echo $_SESSION['usuario']?></a>
                         <a href="#" id="close" class="button primary" style="display: none; margin-left: 1em;">Salir</a>
                     </li>
+
 				</ul>
 			</nav>
 		</header>

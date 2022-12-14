@@ -150,6 +150,25 @@ th.sorting {
 	border: 10px solid #4b9cdb;
  }
 
+#detalleView{
+	position: absolute;
+	border-radius: 10px;
+	top: 15%;
+	left: 10%;
+	max-width: 1300px;
+	max-height: 700px;
+	background-color: rgba(255,255,255,1);
+	border: 1px solid #4b9cdb;
+	overflow: scroll;
+	padding-bottom: 5px;
+	padding-top: 5px;
+}
+
+#closeModal:hover{
+	zoom: 1.2;
+	color: #4b9cdb;
+}
+
  #textoLoad{
 	position: absolute;
     top: 37%;
@@ -157,6 +176,34 @@ th.sorting {
 	color: white;
 	font-size: 30px;
 	font-weight: bold;
+ }
+
+ #heReportadas{
+	 display: none;
+ }
+
+ .loginInput{
+	 color: white !important;
+ }
+
+ .editado{
+	 border-bottom: 3px solid red !important;
+	 background-color: #ff634742 !important;
+ }
+
+.deleteRow, .updateRow:hover{
+	cursor: pointer;
+}
+
+ .sectionDisabled{
+	 pointer-events: none;
+	 opacity: 0.5;
+ }
+
+ .openDetails:hover{
+	 zoom: 1.5;
+	 transition: zoom 1s;
+	 color: #5475c7;
  }
 
 
@@ -276,7 +323,7 @@ th.sorting {
 	hr {
 		border: 0;
 		border-bottom: solid 1px rgba(0 0 0 / 25%);
-		margin: 3em 0;
+		margin: 1.5em 0;
 	}
 
 		hr.major {

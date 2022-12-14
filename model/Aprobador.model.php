@@ -24,7 +24,7 @@ class Aprobador{
             $this->nombre = $object["nombre"];
             $this->correo = $object["correo"];
             $this->tipo = $object["tipo"];
-            $this->sql = "INSERT INTO dbo.aprobador (nombre, correo, tipo) VALUES (:nombre, :correo, :tipo)";
+            $this->sql = "INSERT INTO dbo.Aprobadores (nombre, correo, tipo) VALUES (:nombre, :correo, :tipo)";
             
             $this->connection->beginTransaction();
             $this->result = $this->connection->prepare($this->sql);
@@ -45,7 +45,7 @@ class Aprobador{
     public function update(){}
 
     public function get(){
-        $this->sql = 'SELECT * FROM dbo.Aprobador';
+        $this->sql = 'SELECT * FROM dbo.Aprobadores';
         $this->result = $this->connection->prepare($this->sql);
         $this->result->execute();
 
@@ -55,7 +55,7 @@ class Aprobador{
     public function getPermisos($logUser){
         if (isset($logUser)) {
             $this->nombre = trim($logUser);
-            $this->sql = 'SELECT * FROM dbo.Aprobador WHERE nombre = :nombre';
+            $this->sql = 'SELECT * FROM dbo.Aprobadores WHERE nombre = :nombre';
 
             $this->result = $this->connection->prepare($this->sql);
             $this->result->bindParam(':nombre' , $this->nombre);
@@ -86,7 +86,7 @@ class Aprobador{
 
             $this->gestion = $object["gestion"];
 
-            $this->sql = 'SELECT * FROM Aprobador WHERE gestiona = :gestion';
+            $this->sql = 'SELECT * FROM dbo.Aprobadores WHERE gestiona = :gestion';
             $this->result = $this->connection->prepare($this->sql);
             $this->result->bindParam(':gestion', $this->gestion);
             $this->result->execute();

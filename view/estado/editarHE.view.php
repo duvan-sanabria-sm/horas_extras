@@ -8,9 +8,9 @@ if (!isset($_POST['id'])) {
 <section id="five" class="wrapper style2 special fade">
 	<div class="container">
 		<header>
-			<h3 style="color: white;">Edición Reporte Hora Extra</h3>
+			<h3 style="color: white;">Edición Reporte Hora Extra <?php echo $_POST['id']?></h3>
 			<h2 style="color: white;">Estado: <span><?php echo $_POST['estadoNombre']?></span></h2>
-			<input type="text" name="idHE" id="idHE" data-id="<?php echo $_POST['id']?>" style="display: none;">
+			<input type="text" name="idReporteHE" id="idReporteHE" data-id="<?php echo $_POST['id']?>" style="display: none;">
 		</header>
 
 		<section class="col-12 col-4-medium col-12-xsmall">

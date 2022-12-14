@@ -1,7 +1,7 @@
 $(document).ready(function(e) {
 
     selectAprobador();
-    restarDescuento();
+    sumDescuento();
     setDataAprobador();
     sendData();
     showHelp();
@@ -25,13 +25,13 @@ $(document).ready(function(e) {
     $('#formReporte').validate({
         rules: {
             cc: 'required',
-            ceco: 'required',
+            cargo: 'required',
             mes: 'required',
             novedad: 'required',
         },
         messages: {
             cc: 'Ingrese un numero de cedula valido con al menos 10 digitos.',
-            ceco: 'Seleccione un Centro de Costo',
+            cargo: 'Ingrese un valor para cargo.',
             mes: 'Seleccione el mes a reportar.',
             novedad: 'Ingrese la causa de la novedad.',
         }
@@ -39,8 +39,8 @@ $(document).ready(function(e) {
 
     $.when($.ajax('../controller/CRUD.controller.php?action=listAll&model=CentroCosto&crud=get'), $.ajax('../controller/CRUD.controller.php?action=listAll&model=TipoHE&crud=get'), $.ajax('../controller/CRUD.controller.php?action=listAll&model=TipoRecargo&crud=get'), $.ajax('../controller/CRUD.controller.php?action=listAll&model=Aprobador&crud=get'))
     .then(function (result1, result2, result3, result4) {
-        // Cargar HTML Reporte
-        var html;
+        // Cargar CECOS
+        var html = '<option value=""></option>';
         var datos = JSON.parse(result1[0]);
 
         datos.forEach(element => {
@@ -50,8 +50,8 @@ $(document).ready(function(e) {
         $('#ceco').html(html);
 
         // Cargar Tabla HE
-        var headerTable = '<tr>';
-        var bodyTable = '<tr>';
+        var headerTable = '';
+        var bodyTable = '';
         var id;
         var datos = JSON.parse(result2[0]);
                 
@@ -60,18 +60,18 @@ $(document).ready(function(e) {
         
             headerTable += `<th>${element.nombre}</th>`;
         
-            bodyTable += `<td><input type="text" class="values valueHE" name="${id}" id="${id}" data-codigo="${element.codigo}" value="0" required pattern="^[0-9]{1,2}?(.[0,5]{0,1})?$" title="Solo numeros, debe terminar en un decimal .5 o en la unidad mas próxima"/></td>`
+            bodyTable += `<td style="width: 70px;"><input type="text" class="values valueHE" name="${id}" id="${id}" data-codigo="${element.codigo}" value="0" required pattern="^[0-9]{1,2}?(.[0,5]{0,1})?$" title="Solo numeros, debe terminar en un decimal .5 o en la unidad mas próxima"/></td>`
         });
     
-        headerTable += '</tr>';
-        bodyTable += '</tr>';
+        //headerTable += '</tr>';
+        //bodyTable += '</tr>';
     
         $('#encTableHE').append(headerTable);
-        $('#bodyTableHE').html(bodyTable);
+        $('#rowTableHE').append(bodyTable);
 
         // Cargar Table Recargos
-        headerTable = '<tr>';
-        bodyTable = '<tr>';
+        headerTable = '';
+        bodyTable = '';
         id;
         datos = JSON.parse(result3[0]);
 
@@ -80,14 +80,14 @@ $(document).ready(function(e) {
 
             headerTable += `<th>${element.nombre}</th>`;
 
-            bodyTable += `<td><input type="text" class="values valueRecargo" name="${id}" id="${id}" data-codigo="${element.codigo}" value="0" required pattern="^[0-9]{1,2}?(.[0,5]{0,1})?$" title="Solo numeros, debe terminar en un decimal .5 o en la unidad mas próxima"/></td>`
+            bodyTable += `<td style="width: 70px;"><input type="text" class="values valueRecargo" name="${id}" id="${id}" data-codigo="${element.codigo}" value="0" required pattern="^[0-9]{1,2}?(.[0,5]{0,1})?$" title="Solo numeros, debe terminar en un decimal .5 o en la unidad mas próxima"/></td>`
         });
         
-        headerTable += '</tr>';
-        bodyTable += '</tr>';
+        //headerTable += '</tr>';
+        //bodyTable += '</tr>';
         
-        $('#encTableRecargo').html(headerTable);
-        $('#bodyTableRecargo').html(bodyTable);
+        $('#encTableHE').append(headerTable);
+        $('#rowTableHE').append(bodyTable);
 
         //Cargar listado Jefes/Gerentes
         var htmlJefe;
@@ -108,16 +108,23 @@ $(document).ready(function(e) {
         $('#listJefe').html(htmlJefe);
         $('#listGerente').html(htmlGerente);
 
+        let lenghtCol =  countColumns();
+        colspanButton(lenghtCol);
+        changeDateReport();
+        addRow();
         focusValuesHE();
         sumValuesHE();
         sumValuesRecargo();
+        validateMainValues();
+
+        onLoadEditHE();
     });
     
 });
 
 function showHelp() {
     $('.help').on('mouseover', function() {
-        $(this).notify('Digite los decimales separados por punto "."". Redondee los decimales de modo que sea .5 o a la unidad mas proxima.', {style: 'happyblue', position: 'right', autoHideDelay: 3500} )
+        $(this).notify('Digite los decimales separados por punto "."".\n Redondee los decimales de modo que sea .5 o a la unidad mas proxima.', {style: 'happyblue', position: 'right', autoHideDelay: 3500} )
     })
 }
 
@@ -289,8 +296,48 @@ function sumValuesRecargo() {
 
 }
 
-function restarDescuento() {
-    $('#descuentos').on('blur', function(e) {
+function sumDescuento() {
+
+    var suma;
+
+    $('.descuentos').on('focus', function(e) {
+
+        suma = $('#calcDescuentos').html();
+        suma = parseFloat(suma);
+
+        var valorHE;
+
+        valorHE = $(this).val();
+
+        if (valorHE == '') {
+            valorHE = 0;
+        }
+
+        if (!isNaN(valorHE)) {
+
+            if (valorHE !== '0.0' || valorHE !== 0 || valorHE !== '0') {
+
+                suma -= parseFloat(valorHE);
+            }
+        }
+
+    });
+
+    $('.descuentos').on('blur', function(e) {
+        var valorHE;
+
+        valorHE = $(this).val();
+
+        if (valorHE == '') {
+            valorHE = 0;
+        }
+
+        if (!isNaN(valorHE)) {
+            suma += parseFloat(valorHE);
+        }
+
+        $('#calcDescuentos').html(suma);
+
         total();
     });
 }
@@ -322,7 +369,7 @@ function total() {
 
     var horasExtra = $('#calcHE').html();
     var recargos = $('#calcRec').html();
-    var descuentos = $('#descuentos').val();
+    var descuentos = $('#calcDescuentos').html();
 
     total = parseFloat(Math.abs(horasExtra)) + parseFloat(Math.abs(recargos)) + parseFloat(Math.abs(descuentos));
 
@@ -332,25 +379,24 @@ function total() {
 
 function sendData() {
     $('#sendData').click(function(e) {
-        var idHoraExtra;
+        e.preventDefault();
+        var idHorasExtra;
+        let idReporteHE;
 
-        var cc = $('#cc').val();
-        console.log("🚀 ~ file: reporteHE.js ~ line 282 ~ $ ~ cc", cc)
-        var empleado = $('#cc').data('empleado');
-        console.log("🚀 ~ file: reporteHE.js ~ line 284 ~ $ ~ empleado", empleado)
-        var novedad = $('#novedad').val();
-        console.log("🚀 ~ file: reporteHE.js ~ line 286 ~ $ ~ novedad", novedad)
+        //DATOS DE REPORTE HE
         var ceco = $('#ceco').children("option:selected").val();
-        console.log("🚀 ~ file: reporteHE.js ~ line 288 ~ $ ~ ceco", ceco)
-        var correoEmpleado = $('#cc').data('correoempleado');
-        console.log("🚀 ~ file: reporteHE.js ~ line 356 ~ $ ~ correoEmpleado", correoEmpleado)
-
-        var descuentos = $('#descuentos').val();
-        console.log("🚀 ~ file: reporteHE.js ~ line 316 ~ $ ~ descuentos", descuentos)
         var total = $('#total').html();
-        console.log("🚀 ~ file: reporteHE.js ~ line 318 ~ $ ~ total", total)
+        var empleado = $('#cc').data('empleado');
+        var correoEmpleado = $('#cc').data('correoempleado');
+        var cc = $('#cc').val();
+        var cargo = $('#cargo').val();
+        //***************
 
-        if (cc.length <= 0 || empleado.length <= 0 || novedad.length <= 0 || ceco.length <= 0 || descuentos.length <= 0) {
+        if (ceco.length <= 0){
+            ceco = null;
+        }
+
+        if (cc.length <= 0 || empleado.length <= 0 || cargo.length <= 0) {
             $(this).notify("Hay campos requeridos (*) que estan vacios!", 'error');
             console.log('Hay datos vacios');
             return false;
@@ -360,28 +406,6 @@ function sendData() {
             $(this).notify("El numero de Cedula no es valido!", 'error');
             console.log('Error en la cedula');
             return false;
-        }
-
-        var valuesHE = getDataHE();
-        var valuesRecargo = getDataRecargos();
-
-        let regex = new RegExp('^[0-9]{1,2}?(.[0,5]{0,1})?$');
-
-        console.log(valuesHE);
-        console.log(valuesRecargo);
-
-        for (let i = 0; i < valuesHE.length; i++) {
-            if (!regex.test(valuesHE[i].value)) {
-                $(this).notify("El formato de las Horas Extra no cumple con el solicitado!", 'error');
-                return false;
-            }
-        }
-
-        for (let i = 0; i < valuesRecargo.length; i++) {
-            if (!regex.test(valuesRecargo[i].value)) {
-                $(this).notify("El formato de los Recargos no cumple con el solicitado!", 'error');
-                return false;
-            }
         }
 
         var fechas = getFechas();
@@ -400,28 +424,21 @@ function sendData() {
             aprobador = localStorage.getItem('aprobador');
             correoAprobador = localStorage.getItem('correoAprobador');
 
-           if (aprobador.length <= 0 || correoAprobador.length <= 0 ) {
-                $('#errorRadio').css({display: 'inline'});
-                console.log('Error, datos incompletos'); 
-                return false;
-           }
-
-            console.log("🚀 ~ file: reporteHE.js ~ line 340 ~ $ ~ aprobador", aprobador)
-            console.log("🚀 ~ file: reporteHE.js ~ line 340 ~ $ ~ correoAprobador", correoAprobador)
         }else{
 
-            if (!localStorage.getItem('TipoAprobador')){
-                $('#errorRadio').css({display: 'inline'});
-                console.log('Escoja un aprobador');
-                return false;
-            }
-
             let type =  localStorage.getItem('TipoAprobador');
-
             if (type == 'contable' || type == 'rh'){
                 aprobador = localStorage.getItem('aprobador');
                 correoAprobador = localStorage.getItem('correoAprobador');
             }
+        }
+
+        if (!aprobador){
+            aprobador = null;
+        }
+
+        if (!correoAprobador){
+            correoAprobador = null;
         }
 
         var estado = getEstado();
@@ -431,24 +448,41 @@ function sendData() {
             return false;
         }
 
+        let validate = validateDataRows();
+
+        if (!validate){
+            return false;
+        }
+
         let object = {
             'object': {
-                'cc': cc,
+                'id_estado': estado,
+                'id_ceco': ceco,
+                'total': total,
+                'id_aprobador': aprobador,
                 'empleado': empleado,
                 'correoEmpleado': correoEmpleado,
-                'fechareporte': fechas[0],
-                'novedad': novedad,
+                'cc': cc,
+                'cargo': cargo,
                 'fechaInicio': fechas[2],
-                'fechaFin': fechas[1],
-                'descuento': descuentos,
-                'total': total,
-                'ceco': ceco,
-                'aprobador': aprobador,
-                'estado': estado,
+                'fechaFin': fechas[1]
             }
         }
 
-        e.preventDefault();
+        /**
+
+        $.ajax({
+            data: object,
+            url: './test.php',
+            type: 'post',
+            success: function(result){
+                $('#resultTest').html(result);
+                return false;
+            }
+
+        });
+
+         **/
 
         var actionExecute = $(this).data('type');
 
@@ -456,109 +490,81 @@ function sendData() {
             case 'create':
                 $.ajax({
                     data: object,
-                    url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=insert',
+                    url: '../controller/CRUD.controller.php?action=execute&model=Reporte&crud=insert',
                     type: 'post',
                     beforeSend: function () {
-        
+
                         $('#butonSend').css({display: 'none'});
-                        $('#loadSpinner').css({display: 'inline'}); 
+                        $('#loadSpinner').css({display: 'inline'});
                     },
-                    success: function(result){
-                        
-                        console.log("🚀 ~ file: reporteHE.js ~ line 435 ~ $ ~ result", result)
-        
+                    success: async function(result){
+
+                        console.log('Result ', result);
+
                         if (isNaN(parseInt(result))) {
-                            $.notify('Error al registrar las Horas Extra.', 'error');    
+                            $.notify('Error al registrar las Horas Extra.', 'error');
                             return false;
                         }
-        
-                        idHoraExtra = result;
-        
-                        var data = {
-                            'horaExtra': idHoraExtra,
-                            'valuesHE': JSON.stringify(valuesHE),
+
+                        idReporteHE = result;
+
+                        if (!document.getElementById('tableHE').classList.contains('sectionDisabled')){
+                            try {
+                                await createHE(idReporteHE);
+                            }catch (e) {
+                                console.log('Error al crear HE', e);
+                            }
                         }
-                        
+
+                        $('#formReporte').trigger("reset");
+                        $('#total').html(0);
+                        $('#calcRec').html(0);
+                        $('#calcHE').html(0);
+                        $('#calcDescuentos').html(0);
+
+                        $('#listGerente').find('option:first-child').prop('selected', true);
+                        $('#listJefe').find('option:first-child').prop('selected', true);
+                        $('#listJefe').attr('disabled', true);
+                        $('#listJefe').attr('disabled', true);
+                        clearTable();
+                        $("#tableHE").addClass("sectionDisabled");
+                        $.notify('Enviado con exito', 'success');
+
+                        if (estado === 1002){
+                            $('#butonSend').css({display: 'inline'});
+                            $('#loadSpinner').css({display: 'none'});
+                            return true;
+                        }
+
+                        let data = {
+                            'to': correoAprobador,
+                            'from': correoEmpleado,
+                            'empleado': empleado,
+                            'idReporte': idReporteHE
+                        }
+
                         $.ajax({
-                            datatype: 'JSON',
-                            data: { "data" : data },
-                            url: '../controller/CRUD.controller.php?action=insertMany&model=HoraExtra&crud=insertHoras',
+                            data:  data,
+                            url: '../controller/Email.controller.php?email=solicitudEmpleado',
                             type: 'post',
                             success: function(result){
-                                
-                                console.log("🚀 ~ file: reporteHE.js ~ line 450 ~ $ ~ result", typeof result)
-        
-                                if (result !== '1') {
-                                    $.notify('Error al registrar las Horas Extra.', 'error');    
-                                    return false;
+
+                                console.log('Email result ', result);
+
+                                if (result == 'Email result  Message has been sent1') {
+                                    $.notify('Notificación enviada', 'success');
+                                }else{
+                                    $.notify('No se envió la notificación', 'error');
                                 }
-                                
-                                var data = {
-                                    'horaExtra': idHoraExtra,
-                                    'valuesRecargo': JSON.stringify(valuesRecargo)
-                                }
-                                
-                                $.ajax({
-                                    datatype: 'JSON',
-                                    data: { "data" : data },
-                                    url: '../controller/CRUD.controller.php?action=insertMany&model=Recargo&crud=insert',
-                                    type: 'post',
-                                    success: function(result){
-                                        
-                                        console.log("🚀 ~ file: reporteHE.js ~ line 450 ~ $ ~ result", typeof result)
-                
-                                        if (result !== '1') {
-                                            $.notify('Error al registrar los recargos.', 'error');    
-                                            return false;
-                                        }
-                                        
-                                        $('#formReporte').trigger("reset");
-                                        $('#total').html(0);
-                                        $('#calcRec').html(0);
-                                        $('#calcHE').html(0);
-        
-                                        $('#listGerente').find('option:first-child').prop('selected', true);
-                                        $('#listJefe').find('option:first-child').prop('selected', true);
-                                        $('#listJefe').attr('disabled', true);
-                                        $('#listJefe').attr('disabled', true);
-                                        $.notify('Enviado con exito', 'success');
-        
-                                        var data = {
-                                            'to': correoAprobador,
-                                            'from': correoEmpleado,
-                                            'empleado': empleado,
-                                            'idHE': idHoraExtra
-                                        }
-        
-                                        $.ajax({
-                                            data:  data,
-                                            url: '../controller/Email.controller.php?email=solicitudEmpleado',
-                                            type: 'post',
-                                            success: function(result){
-        
-                                                if (result == 1) {
-                                                    $.notify('Notificación enviada', 'success');
-                                                    $('#butonSend').css({display: 'inline'});
-                                                    $('#loadSpinner').css({display: 'none'});
-                                                    return true;
-                                                }
-        
-                                                $.notify('No se envió la notificación', 'error');
-                                            }
-        
-                                        });
-                                    },
-                                    error: function (jqXHR, textStatus, errorThrown) {
-                                        $.notify('Error al registrar los recargos.', 'error');
-                                        console.error(title, 'textStatus::' + textStatus, 'errorThrown:: ' + errorThrown);
-                                    }
-                                }); 
-                            },
-                            error: function (jqXHR, textStatus, errorThrown) {
-                                $.notify('Error al registrar los recargos.', 'error');
-                                console.error(title, 'textStatus::' + textStatus, 'errorThrown:: ' + errorThrown);
+
+                                $('#butonSend').css({display: 'inline'});
+                                $('#loadSpinner').css({display: 'none'});
+                                return true;
+
                             }
-                        });     
+
+                        });
+
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         $.notify('Error al crear el registro.', 'error');
@@ -570,80 +576,99 @@ function sendData() {
 
                 console.log('Actualizando...');
 
-                $('#butonSend').css({display: 'none'});
-                $('#loadSpinner').css({display: 'inline'});
-                let id = $('#idHE').data('id');
+                let updateRows = document.getElementsByClassName('fieldEdit');
 
-                object.object.id = id;
-
-                let data = {
-                    'horaExtra': id,
-                    'valuesHE': JSON.stringify(valuesHE),
-                    'valuesRecargo': JSON.stringify(valuesRecargo)
+                for (let updateRow of updateRows) {
+                    if (updateRow.classList.contains('editado')){
+                        $.notify('Tiene registros sin guardar!', 'info');
+                        updateRow.focus();
+                        return;
+                    }
                 }
 
-                $.when($.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=update', type: 'post'}), $.ajax({datatype: 'JSON', data: { "data" : data }, url: '../controller/CRUD.controller.php?action=insertMany&model=HoraExtra&crud=updateHoras', type: 'post'}), $.ajax({datatype: 'JSON', data: { "data" : data }, url: '../controller/CRUD.controller.php?action=insertMany&model=Recargo&crud=update', type: 'post'}))
-                    .then(function (result1, result2, result3) {
+                idReporteHE = $('#idReporteHE').data('id');
 
-                        if (isNaN(parseInt(result1[0]))) {
-                            $.notify('Error al actualizar los datos de Horas Extra.', 'error');    
-                            return false;
+                object.object.id = idReporteHE;
+
+                console.log(object);
+
+                $.ajax({
+                    data: object,
+                    url: '../controller/CRUD.controller.php?action=execute&model=Reporte&crud=update',
+                    type: 'post',
+                    beforeSend: function () {
+                        $('#butonSend').css({display: 'none'});
+                        $('#loadSpinner').css({display: 'inline'});
+                    },
+                    success: async function(result){
+
+                        console.log('UPDATE REPORTE ', result);
+
+                        if (result !== '1'){
+                            $.notify('Error al actualizar el reporte', 'error');
+                        }else{
+                            $.notify('Reporte actualizado con exito', 'success');
                         }
 
-                        if (isNaN(parseInt(result2[0]))) {
-                            $.notify('Error al actualizar las Horas Extra.', 'error');    
-                            return false;
-                        }
-
-                        if (isNaN(parseInt(result3[0]))) {
-                            $.notify('Error al actualizar los Reportes.', 'error');    
-                            return false;
-                        }
-
-                        $.notify('Actualizado con exito', 'success');
                         $('#butonSend').css({display: 'inline'});
                         $('#loadSpinner').css({display: 'none'});
 
-                        $.when($.ajax('./estado/listEstado.view.php'))
-                        .then(function(result1) {
-                            var script = "<script src=\"../assets/js/listadoHE.js\"></script>";
-                            //Cargar HTML
-                            $('#links').append(script);
-                            
-                            $('#result').html(result1);
+                        if (!document.getElementById('tableHE').classList.contains('sectionDisabled')){
+                            let execution = await createHE(idReporteHE);
 
-                            var data = {
-                                'to': correoAprobador,
-                                'from': correoEmpleado,
-                                'empleado': empleado,
-                                'idHE': id
+                            if (!execution){
+                                return false;
                             }
+                        }
 
-                            $.ajax({
-                                data:  data,
-                                url: '../controller/Email.controller.php?email=actualizacionHE',
-                                type: 'post',
-                                success: function(result){
+                        $.when($.ajax('./estado/listEstado.view.php'))
+                            .then(function(result1) {
+                                var script = "<script src=\"../assets/js/listadoHE.js\"></script>";
+                                var script2 = "<script src=\"../assets/js/detailsReporte.js\"></script>";
+                                //Cargar HTML
+                                $('#links').append(script2);
+                                $('#links').append(script);
 
-                                    if (result == 1) {
-                                        $.notify('Notificación enviada', 'success');
-                                        return true;
-                                    }
+                                $('#result').html(result1);
 
-                                    $.notify('No se envió la notificación', 'error');
+                                if (estado === 1002){
+                                    return true;
                                 }
 
-                            });
-                        
-                        })
-                        return true;
+                                var data = {
+                                    'to': correoAprobador,
+                                    'from': correoEmpleado,
+                                    'empleado': empleado,
+                                    'idReporte': idReporteHE
+                                }
 
-                    });
+                                $.ajax({
+                                    data:  data,
+                                    url: '../controller/Email.controller.php?email=actualizacionHE',
+                                    type: 'post',
+                                    success: function(result){
+
+                                        console.log('Result Email ', result);
+
+                                        if (result == 'Message has been sent1') {
+                                            $.notify('Notificación enviada', 'success');
+                                            return true;
+                                        }
+
+                                        $.notify('No se envió la notificación', 'error');
+                                    }
+
+                                });
+
+                            });
+                    }
+                });
 
                 break;
             default:
                 break;
         }
+
     })
 }
 
@@ -652,16 +677,15 @@ function getFechas(){
     var fecha;
     var mes = $('#mes').val();
 
-
     if (mes.length <= 0) {
         return;
     }
 
     mes = mes.split('-');
 
-    if (parseInt(mes[1]) <= 9) {
+    if (parseInt(mes[1]) <= 8) {
         mes = mes[0] + '-' + '0' + (parseInt(mes[1]) + 1);
-    }else if (parseInt(mes[1]) > 9 && parseInt(mes[1]) <= 11) {
+    }else if (parseInt(mes[1]) >= 9 && parseInt(mes[1]) <= 11) {
         mes = mes[0] + '-' + (parseInt(mes[1]) + 1);
     }else if (parseInt(mes[1]) == 12) {
         mes = mes[0] + '-' + '01';
@@ -670,46 +694,145 @@ function getFechas(){
     fecha = new Date();
     fechas[0] = fecha.getFullYear() + '-' + (fecha.getMonth() + 1) + '-' + fecha.getDate();
     fecha = new Date(mes);
-    fechas[1] = fecha.getFullYear() + '-' + (fecha.getMonth() + 1) + '-' + fecha.getDate();
-    fechas[2] = fecha.getFullYear() + '-' + (fecha.getMonth() + 1) + '-01';
+
+    if (fecha.getMonth() <= 8){
+        fechas[1] = fecha.getFullYear() + '-0' + (fecha.getMonth() + 1)  + '-' + fecha.getDate();
+        fechas[2] = fecha.getFullYear() + '-0' + (fecha.getMonth() + 1) + '-01';
+    }else{
+        fechas[1] = fecha.getFullYear() + '-' + (fecha.getMonth() + 1)  + '-' + fecha.getDate();
+        fechas[2] = fecha.getFullYear() + '-' + (fecha.getMonth() + 1) + '-01';
+    }
 
     return fechas;
-
 }
 
-function getDataHE() {
-    var valuesHE = [];
+function validateDataRows(){
 
-    $.each($('.valueHE'), function(e) {
-        var valorHE = {};
-        valorHE.codigo = $(this).data('codigo');
-        if ($(this).val() == '0.0') {
-            valorHE.value = '0';
-        }else{
-            valorHE.value = $(this).val();
+    if (document.getElementById('tableHE').classList.contains('sectionDisabled')){
+        return true;
+    }
+    let regex = new RegExp('^[0-9]{1,2}?(.[0,5]{0,1})?$');
+
+    let rowsTable = document.getElementById("bodyTableHE");
+    let rowElements = rowsTable.getElementsByTagName("tr");
+    let isError = false;
+
+    for (let rowElement of rowElements) {
+        let inputElements = rowElement.getElementsByTagName("input");
+
+        for (let i = 0; i < inputElements.length; i++) {
+
+            if (inputElements[i].classList.contains('fechasActividades')){
+                if (inputElements[i].value.length <= 0){
+                    inputElements[i].focus();
+                    isError = true;
+                    break;
+                }
+            }
+
+            if (inputElements[i].classList.contains('novedades')){
+                if (inputElements[i].value.length <= 0){
+                    inputElements[i].focus();
+                    isError = true;
+                    break;
+                }
+            }
+
+            if (inputElements[i].classList.contains('descuentos') || inputElements[i].classList.contains('valueHE') || inputElements[i].classList.contains('valueRecargo')){
+                if (!regex.test(inputElements[i].value)) {
+                    inputElements[i].focus();
+                    isError = true;
+                    break;
+                }
+            }
         }
-        valuesHE.push(valorHE);
-    });
 
-    return valuesHE;
+        if (isError){
+            $.notify('Hay campos obligatorios (*) vacios o el formato de número es erroneo!', 'error');
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function getHE() {
+
+    let arrayHE = [];
+    let valuesHE = [];
+    let valuesRecargo = [];
+
+    let rowsTable = document.getElementById("bodyTableHE");
+
+    let rowElements = rowsTable.getElementsByTagName("tr");
+
+    for (let rowElement of rowElements) {
+        let inputElements = rowElement.getElementsByTagName("input");
+        let setValuesHE = [];
+        let setValuesRecargo = [];
+        let he = {};
+        for (let i = 0; i < inputElements.length; i++) {
+            let valorHE = {};
+            let valorRecargo = {};
+
+            if (inputElements[i].classList.contains('fechasActividades')){
+                he.fecha = inputElements[i].value;
+            }
+
+            if (inputElements[i].classList.contains('novedades')){
+                he.novedad = inputElements[i].value;
+            }
+
+            if (inputElements[i].classList.contains('descuentos')){
+                he.descuento = inputElements[i].value;
+            }
+
+            if (inputElements[i].classList.contains('valueHE')){
+                valorHE.codigo = inputElements[i].dataset.codigo;
+                inputElements[i].value == '0.0' ? valorHE.value = '0' : valorHE.value = inputElements[i].value;
+            }
+
+            if (inputElements[i].classList.contains('valueRecargo')){
+                valorRecargo.codigo = inputElements[i].dataset.codigo;
+                inputElements[i].value == '0.0' ? valorRecargo.value = '0' : valorRecargo.value = inputElements[i].value;
+            }
+
+            if (JSON.stringify(valorHE) !== '{}'){
+                setValuesHE.push(valorHE);
+            }
+
+            if (JSON.stringify(valorRecargo) !== '{}'){
+                setValuesRecargo.push(valorRecargo);
+            }
+        }
+
+        if (JSON.stringify(he) !== '{}'){
+            arrayHE.push(he);
+        }
+
+        if (setValuesHE.length > 0){
+            valuesHE.push(setValuesHE);
+        }
+
+        if (setValuesHE.length > 0){
+            valuesRecargo.push(setValuesRecargo);
+        }
+    }
+
+    return [arrayHE, valuesHE, valuesRecargo];
+}
+
+function getDataArray(arrayData, arrayID) {
+
+    for (let i = 0; i < arrayData.length; i++) {
+        let values = arrayData[i];
+        for (let j = 0; j < values.length; j++) {
+            values[j].id = arrayID[i].id;
+        }
+    }
+
+    return arrayData;
     
-}
-
-function getDataRecargos(params) {
-    var valuesRecargo = [];
-
-    $.each($('.valueRecargo'), function(e) {
-        var valorRecargo = {};
-        valorRecargo.codigo = $(this).data('codigo');
-        if ($(this).val() == '0.0') {
-            valorRecargo.value = '0';
-        }else{
-            valorRecargo.value = $(this).val();
-        }
-        valuesRecargo.push(valorRecargo);
-    });
-
-    return valuesRecargo;
 }
 
 function getEstado() {
@@ -717,14 +840,393 @@ function getEstado() {
     var estado;
     
     if(tipoAprobador == 'Jefe'){
-        estado = 1002;
+        estado = 3;
     }else if (tipoAprobador == 'Gerente') {
-        estado = 1003;
+        estado = 5;
     }else if (tipoAprobador == 'contable'){
-        estado = 1005;
+        estado = 9;
     }else if (tipoAprobador == 'rh'){
-        estado = 1004;
+        estado = 7;
+    }else{
+        estado = 1002;
     }
 
     return estado;
+}
+
+function countColumns(){
+    // Obtenemos la fila
+    let obtenerFila = document.getElementById("bodyTableHE");
+
+// Obtenemos los elementos td de la fila
+    let elementosFila = obtenerFila.getElementsByTagName("td");
+
+// Mostramos la colección HTML de la fila.
+    return elementosFila.length;
+}
+
+function colspanButton(lenghtCol){
+    let celda = document.getElementById('botonAgregar');
+    celda.setAttribute('colspan', lenghtCol);
+
+    let celdas = document.getElementsByClassName('tituloTotal');
+    for (let i = 0; i < celdas.length; i++) {
+        celdas[i].setAttribute('colspan', lenghtCol - 1);
+    }
+}
+
+function limitDate() {
+        let fechas = getFechas();
+
+        let activitiesDate = document.getElementsByClassName('fechasActividades');
+
+        if (fechas == undefined){
+            return;
+        }
+
+        for (let i = 0; i < activitiesDate.length; i++) {
+            activitiesDate[i].setAttribute('min', fechas[2]);
+            activitiesDate[i].setAttribute('max', fechas[1]);
+        }
+}
+
+function addRow() {
+    let id = 0;
+
+    $('#agregarhe').click(function (){
+        let row = $('#rowTableHE').html();
+        id++;
+
+        $('#bodyTableHE').append(`<tr id="row_${id}" class="rowTable">  ${row}  <td align="left"><span style="color: tomato;" data-id="${id}" class="deleteRow icon solid fa-window-close fi" onclick="deleteRow(event, this, false)"></span></td> </tr>`);
+
+        focusValuesHE();
+        sumValuesHE();
+        sumValuesRecargo();
+        sumDescuento();
+    });
+}
+
+async function deleteRow(e, element, isDelete){
+
+    let id = element.dataset.id;
+
+    let object = {
+        'object': {
+            'id': id
+        }
+    }
+
+    if (isDelete){
+        let result =  await executeAction(object, 1);
+        if (!result){
+            return;
+        }
+    }
+
+        var restarTotal = 0.0;
+        var restarHE = 0.0;
+        var restarRecargos = 0.0;
+        var restarDescuentos = 0.0;
+
+        let html =  document.getElementById(`row_${id}`);
+        let inputs = html.getElementsByTagName("input");
+
+        $(`#row_${id}`).remove();
+
+        for (let i = 0; i < inputs.length; i++) {
+
+            if (inputs[i].classList.contains('descuentos')){
+                restarDescuentos += parseFloat(inputs[i].value);
+            }
+
+            if (inputs[i].classList.contains('valueHE')){
+                restarHE += parseFloat(inputs[i].value);
+            }
+
+            if (inputs[i].classList.contains('valueRecargo')){
+                restarRecargos += parseFloat(inputs[i].value);
+            }
+        }
+
+        restValues(restarHE, 'calcHE');
+        restValues(restarRecargos, 'calcRec');
+        restValues(restarDescuentos, 'calcDescuentos');
+}
+
+function updateRow(e, element) {
+    let id = element.dataset.id;
+
+    let idReport = $('#idReporteHE').data('id');
+    let total = $('#total').html();
+
+    let html =  document.getElementById(`row_${id}`);
+    let inputs = html.getElementsByTagName("input");
+
+    let HE = {};
+    let arrayDetalleHE = [];
+    let arrayRec = [];
+
+    for (let i = 0; i < inputs.length; i++) {
+        let objectHE = {};
+        let objectRec = {};
+
+        if (inputs[i].classList.contains('fechasActividades')){
+            HE.fecha = inputs[i].value;
+        }
+
+        if (inputs[i].classList.contains('descuentos')){
+            HE.descuento = inputs[i].value;
+        }
+
+        if (inputs[i].classList.contains('novedad')){
+            HE.novedad = inputs[i].value;
+        }
+
+        if (inputs[i].classList.contains('valueHE')){
+            inputs[i].value == '0.0' ? objectHE.value = '0' : objectHE.value = inputs[i].value;
+            objectHE.codigo = inputs[i].dataset.codigo;
+        }
+
+        if (inputs[i].classList.contains('valueRecargo')){
+            inputs[i].value == '0.0' ? objectRec.value = '0' : objectRec.value = inputs[i].value;
+            objectRec.codigo = inputs[i].dataset.codigo;
+        }
+
+        if (objectHE.value){
+            arrayDetalleHE.push(objectHE);
+        }
+
+        if (objectRec.value){
+            arrayRec.push(objectRec);
+        }
+
+    }
+
+    let object = {
+        'object': {
+            'id': id,
+            'fecha': HE.fecha,
+            'novedad': HE.novedad,
+            'descuento': HE.descuento,
+            'reporte': idReport,
+            'total': total
+        }
+    }
+
+    let data = {
+        'horaExtra': id,
+        'valuesHE': JSON.stringify(arrayDetalleHE),
+        'valuesRecargo': JSON.stringify(arrayRec)
+    }
+
+    $.when($.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=Reporte&crud=updateTotal', type: 'post'}), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=update', type: 'post'}), $.ajax({datatype: 'JSON', data: { "data" : data }, url: '../controller/CRUD.controller.php?action=insertMany&model=HoraExtra&crud=updateHoras', type: 'post'}), $.ajax({datatype: 'JSON', data: { "data" : data }, url: '../controller/CRUD.controller.php?action=insertMany&model=Recargo&crud=update', type: 'post'}))
+        .then(function (result1, result2, result3, result4){
+
+            if ((result1[0] !== '1') || (result2[0] !== '1') || (result3[0] !== '1') || (result4[0] !== '1')){
+                $.notify('Error al actualizar la HE', 'error');
+                console.log(result1);
+                console.log(result2);
+                console.log(result3);
+                console.log(result4);
+                return;
+            }
+
+            for (let input of inputs) {
+                input.classList.remove('editado');
+            }
+
+            $.notify('Actualizado con exito!', 'success');
+        });
+
+}
+
+function restValues(valor, idTotal) {
+    let totalVal = 0;
+    totalVal = $(`#${idTotal}`).html();
+    totalVal = parseFloat(totalVal);
+
+    totalVal -= valor;
+    console.log(totalVal);
+    $(`#${idTotal}`).html(totalVal);
+    total();
+}
+
+function validateMainValues(){
+    $('.mainValue').change(function (){
+        let mainFields = $('.mainValue');
+        for (let i = 0; i < mainFields.length; i++) {
+            if (mainFields[i].value.length <= 0){
+                let table = $('#tableHE');
+                if (!table.hasClass('sectionDisabled')){
+                    table.addClass('sectionDisabled');
+                }
+                return;
+            }
+        }
+
+        $("#tableHE").removeClass("sectionDisabled");
+    });
+}
+
+function clearTable(){
+    let rows = document.getElementsByClassName('rowTable');
+    for (let row of rows) {
+        row.remove();
+    }
+}
+
+function executeAction(object, valAction) {
+    return new Promise(async (resolve, reject)=>{
+        let title;
+        let title_2;
+        let result = false;
+
+        switch (valAction){
+            case 1:
+                title = '¿Desea eliminar el registro?';
+                title_2 = 'Registro eliminado con exito!';
+                break;
+            default:
+                title = '¿Desea ejecutar la accion?';
+                title_2 = 'Accion ejecutada con exito!';
+                break;
+        }
+
+        let option = confirm(title);
+
+        if (!option){
+            $.notify('Se ha cancelado la transacción.', 'info');
+            resolve(option);
+            return;
+        }
+
+        result = await action(object, valAction);
+
+        if (result){
+            $.notify(title_2);
+        }
+
+        resolve(result);
+
+    });
+}
+
+function action(object, valAction){
+    return new Promise((resolve, reject)=>{
+
+        switch (valAction){
+            case 1:
+                $.ajax({
+                    data: object,
+                    url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=delete',
+                    type: 'post',
+                    success: function (result) {
+                        console.log('Resultado Aprob ', result);
+
+                        if (isNaN(parseInt(result))) {
+                            $.notify('No se elimino el registro!', 'error');
+                            reject(false);
+                        }
+
+                        resolve(true);
+                    }
+                });
+                break;
+        }
+    })
+}
+
+function createHE(idReporteHE) {
+    return new Promise((resolve, reject)=>{
+        let idHorasExtra;
+        let objectHE = getHE();
+
+        if (!Array.isArray(objectHE)){
+            $.notify('Hay datos obligatorios (*) sin llenar', 'error');
+            reject(false);
+        }
+
+        let he = objectHE[0];
+
+        he.forEach(element=>{
+            element.total = 0;
+        });
+
+        let data = {
+            'id_reporteHE': idReporteHE,
+            'HE': JSON.stringify(he)
+        }
+
+        $.ajax({
+            datatype: 'JSON',
+            data: { "data" : data },
+            url: '../controller/CRUD.controller.php?action=insertMany&model=HoraExtra&crud=insert',
+            type: 'post',
+            success: function(result){
+
+                console.log('Result-2 ', result);
+
+                if (!result) {
+                    $.notify('Error al registrar las Horas Extra.', 'error');
+                    reject(false);
+                }
+
+                idHorasExtra = JSON.parse(result);
+
+                let heValues = objectHE[1];
+
+                for (let i = 0; i < heValues.length; i++) {
+                    let values = heValues[i];
+                    for (let j = 0; j < values.length; j++) {
+                        values[j].id = idHorasExtra[i].id;
+                    }
+                }
+
+                let data = {
+                    'valuesHE': JSON.stringify(heValues)
+                }
+
+                let valuesRecargo = getDataArray(objectHE[2], idHorasExtra);
+
+                let data1 = {
+                    'valuesRecargo': JSON.stringify(valuesRecargo)
+                }
+
+                $.when( $.ajax({datatype: 'JSON', data: { "data" : data }, url: '../controller/CRUD.controller.php?action=insertMany&model=HoraExtra&crud=insertHoras', type: 'post' }), $.ajax({datatype: 'JSON', data: { "data" : data1 }, url: '../controller/CRUD.controller.php?action=insertMany&model=Recargo&crud=insert', type: 'post' }))
+                    .then(function (result1, result2) {
+
+                        if (result1[0] !== '1') {
+                            $.notify('Error al registrar los valores de HE.', 'error');
+                            reject(false);
+                        }
+
+                        if (result2[0] !== '1') {
+                            $.notify('Error al registrar los Recargos.', 'error');
+                            reject(false);
+                        }
+
+                        resolve(true);
+
+                    })
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                $.notify('Error al registrar los recargos.', 'error');
+                console.error(title, 'textStatus::' + textStatus, 'errorThrown:: ' + errorThrown);
+            }
+        });
+    });
+}
+
+function changeDateReport(){
+    $('#mes').change(function (){
+        limitDate();
+    });
+}
+
+function onLoadEditHE(){
+    let htmlEdit = $('#bodyTableEdit').html();
+    if (htmlEdit.length > 0){
+        limitDate();
+    }
 }

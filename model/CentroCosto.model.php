@@ -19,7 +19,7 @@ class CentroCosto{
     public function insert($object){
         if (isset($object["titulo"])) {
             $this->titulo = $object["titulo"];
-            $this->sql = "INSERT INTO dbo.Centro_Costos (titulo) VALUES (:titulo)";
+            $this->sql = "INSERT INTO dbo.CentrosCosto (titulo) VALUES (:titulo)";
             
             $this->connection->beginTransaction();
             $this->result = $this->connection->prepare($this->sql);
@@ -38,7 +38,7 @@ class CentroCosto{
     public function update(){}
 
     public function get(){
-        $this->sql = 'SELECT * FROM dbo.Centro_Costos';
+        $this->sql = 'SELECT * FROM dbo.CentrosCosto';
         $this->result = $this->connection->prepare($this->sql);
         $this->result->execute();
 

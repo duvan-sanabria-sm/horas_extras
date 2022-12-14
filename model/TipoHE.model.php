@@ -19,7 +19,7 @@ class TipoHE{
     public function insert($object){
         if (isset($object["titulo"])) {
             $this->titulo = $object["titulo"];
-            $this->sql = "INSERT INTO dbo.TipoHE (titulo) VALUES (:titulo)";
+            $this->sql = "INSERT INTO dbo.TiposHE (titulo) VALUES (:titulo)";
             
             $this->connection->beginTransaction();
             $this->result = $this->connection->prepare($this->sql);
@@ -38,7 +38,7 @@ class TipoHE{
     public function update(){}
 
     public function get(){
-        $this->sql = 'SELECT * FROM dbo.TipoHE';
+        $this->sql = 'SELECT * FROM dbo.TiposHE';
         $this->result = $this->connection->prepare($this->sql);
         $this->result->execute();
 

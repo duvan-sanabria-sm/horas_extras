@@ -9,5 +9,6 @@ $(document).ready(function (){
         let fechaFin = $('#fechaFin').val();
 
         console.log('Fechas ', fechaInicio, fechaFin);
+
     })
 })

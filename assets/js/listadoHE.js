@@ -27,12 +27,14 @@ $(document).ready(function(e) {
                     anno = new Date(anno);
     
                     html += `<td>${dato.id}</td>`;
-                    html += `<td>${dato.fechaReporte}</td>`;
+                    html += `<td>${dato.cc}</td>`;
+                    html += `<td>${dato.cargo}</td>`;
+                    html += `<td>${dato.cecoName ? dato.cecoName : 'N/A' }</td>`;
                     html += `<td>${anno.getFullYear()}</td>`;
                     html += `<td>${ meses[anno.getMonth()] }</td>`;
-                    html += `<td>${dato.aprobadorNombre}</td>`;
-                    html += `${ dato.estadoNombre.includes('Rechaz') ? '<td style="color: #e44c65; font-weight: bold;">'+ dato.estadoNombre + '</td>' : '<td>' + dato.estadoNombre + '</td>' }`;
-                    html += `<td>${ dato.estadoNombre.includes('Rechaz') ? '<a href="#" data-index="' + index + '" class="button primary small editarRegistro">Editar</a>' : '<p>Editar</p>' } </td>`;
+                    html += `<td>${dato.aprobadorNombre ? dato.aprobadorNombre : 'N/A' }</td>`;
+                    html += `${ dato.estadoNombre.includes('Rechazado') ? '<td style="color: #e44c65; font-weight: bold;">'+ dato.estadoNombre + '</td>' : dato.estadoNombre.includes('Edicion') ? '<td style="color: #5475c7; font-weight: bold;">'+ dato.estadoNombre + '</td>' : '<td>' + dato.estadoNombre + '</td>' }`;
+                    html += `<td>${ dato.estadoNombre.includes('Rechazado') || dato.estadoNombre.includes('Edicion') ? '<a href="#" data-index="' + index + '" class="button primary small editarRegistro">Editar</a>' : '<span data-reporte="' + dato.id + '" class="openDetails icon solid fa-eye fit" id="detalle_'+ dato.id +'"></span>' } </td>`;
     
                     html += '</tr>';
     
@@ -43,7 +45,8 @@ $(document).ready(function(e) {
                     paging: false,
                     "language": {
                         "search": "Ingrese un valor para filtrar la tabla: ",
-                        "info": "Hay _TOTAL_ registros"
+                        "info": "Hay _TOTAL_ registros",
+                        "zeroRecords": "No hay registros para mostrar"
                     },
                     dom: '<"top"if>rt<"clear">',
                     stateSave: true,
@@ -83,9 +86,13 @@ function modal() {
 
 }
 
-function hideModal() {
-    $('#myModal').html('');
-    $('#myModal').css({display: 'none'});
+function hideModal(){
+    return new Promise((resolve, reject)=>{
+        let modal = $('#myModal');
+        modal.html('');
+        modal.css({display: 'none'});
+        resolve(true);
+    })
 }
 
 function editar() {
@@ -104,25 +111,34 @@ function editar() {
 
         var object = {
             'object': {
-                'id': data.id
+                'id_reporteHE': data.id
             } 
         }
         
-        $.when($.ajax({data: data, url: './estado/editarHE.view.php', type: 'post'}), $.ajax('./reportar/index.view.php'), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=getDetalleHora', type: 'post',}), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=Recargo&crud=getRecargos', type: 'post',}), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=Comentario&crud=getComments', type: 'post',}))
-        .then(function (result1, result2, result3, result4, result5) {
-            $('#links').append(script, script_two, style);
+        $.when($.ajax({data: data, url: './estado/editarHE.view.php', type: 'post'}), $.ajax('./reportar/index.view.php'), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=getCantHorasExtraByReport', type: 'post',}), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=Recargo&crud=getCantRecargosByReport', type: 'post',}), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=Comentario&crud=getComments', type: 'post',}), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=getHorasExtraByReport', type: 'post',}))
+        .then(function (result1, result2, result3, result4, result5, result6) {
+            if (data.id_estado !== '1002'){
+                $('#links').append(script_two, style);
+            }
+
             modal();
 
-            var arrayHE = JSON.parse(result3[0]);
+            var arrayDetailsHE = JSON.parse(result3[0]);
             var arrayRecargo = JSON.parse(result4[0]);
             var arrayComments = JSON.parse(result5[0]);
+            var arrayHE = JSON.parse(result6[0]);
             
             //Cargar HTML Editar
             $('#result').html(result1[0]);
                 
             // Cargar HTML Reporte
-
             $('#formReporte').html(result2[0]);
+
+            //Cargar Datos de Reporte, HE, Recargos, Comentarios
+            $('#heReportadas').css('display', 'inline');
+            setEncabezados(arrayDetailsHE);
+            setEncabezados(arrayRecargo);
+
             var fecha = data.fechaFin;
             fecha = new Date(fecha);
 
@@ -133,7 +149,6 @@ function editar() {
                 month = '0' + month;
             }
 
-            $('#cc').val(data.cc);
             setTimeout(() => {
 
                 var htmlComments;
@@ -150,29 +165,33 @@ function editar() {
                 //Cargar comentarios
                 $('#bodyComments').html(htmlComments);
 
-                $("#ceco option[value="+ data.ceco +"]").attr("selected",true);
-                
-                var sumaHE = 0;
-                arrayHE.forEach(element=>{
-                    $(`#${element.horaExtra.replaceAll(' ', '')}`).val(element.cantidad == '.0' ? '0' : element.cantidad == '.5' ? '0.5' : element.cantidad);
-                    sumaHE += parseFloat(element.cantidad);
-                });
+                //Cargar datos de HE, Recargos
+                printDetalleHE(arrayHE, arrayDetailsHE, arrayRecargo);
 
-                $('#calcHE').html(sumaHE);
+                $('#links').append(script);
 
-                var sumaRecargo = 0;
-                arrayRecargo.forEach(element=>{
-                    $(`#${element.recargo.replaceAll(' ', '')}`).val(element.cantidad == '.0' ? '0' : element.cantidad == '.5' ? '0.5' : element.cantidad);
-                    sumaRecargo += parseFloat(element.cantidad);
-                });
+                $('#sendData').attr('data-type', 'update');
 
-                $('#calcRec').html(sumaRecargo);
+                $('#cc').val(data.cc);
 
-                if (data.estado == '2'){
+                $('#cargo').val(data.cargo);
+
+                $('#total').html(data.total);
+
+                $('#mes').val(fecha.getFullYear() + '-' + month);
+
+                fieldsEdit();
+                buttonAllowRows();
+
+            }, 3000);
+
+            setTimeout(async ()=> {
+
+                if (data.id_estado == '2'){
                     if (data.aprobadorTipo == 'Jefe') {
                         $("#jefe").prop("checked", true);
                         $('#listJefe').attr('disabled', false);
-                        $("#listJefe option[value="+ data.aprobador +"]").attr("selected",true);
+                        $(`#listJefe option[value=${data.id_aprobador}]`).attr("selected",true);
 
                         var correoAprobador = $('#listJefe').find(':selected').data('correoaprobador');
                         var aprobador = $('#listJefe').find(':selected').val();
@@ -184,7 +203,7 @@ function editar() {
                     }else if(data.aprobadorTipo == 'Gerente'){
                         $("#gerente").prop("checked", true);
                         $('#listGerente').attr('disabled', false);
-                        $("#listGerente option[value="+ data.aprobador +"]").attr("selected",true);
+                        $(`#listGerente option[value=${data.id_aprobador}]`).attr("selected",true);
 
                         var correoAprobador = $('#listGerente').find(':selected').data('correoaprobador');
                         var aprobador = $('#listGerente').find(':selected').val();
@@ -192,7 +211,7 @@ function editar() {
                         localStorage.setItem('aprobador', aprobador);
                         localStorage.setItem('TipoAprobador', 'Gerente');
                     }
-                }else if (data.estado == '1006' || data.estado == '1007'){
+                }else if (data.id_estado == '8' || data.id_estado == '10'){
                     $("#jefe").attr("disabled", true);
                     $('#listJefe').attr('disabled', true);
                     $("#gerente").attr("disabled", true);
@@ -207,19 +226,117 @@ function editar() {
                     }else if (data.estado == '1007'){
                         localStorage.setItem('TipoAprobador', 'rh');
                     }
+                }else if (data.id_estado == '1002'){
+                    localStorage.setItem('correoAprobador', '');
+                    localStorage.setItem('aprobador', '');
+                    localStorage.setItem('TipoAprobador', '');
                 }
 
-                $('#sendData').attr('data-type', 'update');
+                if (data.id_ceco){
+                    $(`#ceco option[value=${data.id_ceco}]`).attr("selected",true);
+                }
 
-                hideModal();
-            }, 3000);
-            $('#mes').val(fecha.getFullYear() + '-' + month);
-            $('#novedad').val(data.novedad);
-            $('#descuentos').val(data.descuento);
-            $('#total').html(data.total);
+                try {
+                    await hideModal();
+                }catch (e) {
+                    console.log(e);
+                }
+
+
+            }, 5000);
 
         });
     })
         
 }
 
+function setEncabezados(data){
+    let titulo = [];
+    let html;
+    data.forEach(element=>{
+        if (!titulo.includes(element.nombre)){
+            titulo.push(element.nombre);
+        }
+    });
+
+    titulo.forEach(element=>{
+        html += `<th>${element}</th>`;
+    });
+
+    $('#headTableEdit').append(html);
+}
+
+function printDetalleHE(data1, data2, data3) {
+    let html;
+    let cantHE = data2.length / data1.length;
+    let cantRecargo = data3.length / data1.length;
+    let indiceHE = 0;
+    let indiceRec = 0;
+    let sumaHE = 0;
+    let sumaRecargo = 0;
+    let sumaDescuento = 0;
+
+    for (let i = 0; i < data1.length; i++) {
+        html += `<tr id="row_${data1[i].id}" style="border-bottom: 1px solid black; font-size: 13px;">
+                <td><input type="date" class="fieldEdit fechasActividades" name="" id="" value="${data1[i].fecha}" required/></td>
+                <td><input type="text" class="fieldEdit novedad" name="" id="" value="${data1[i].novedad}" style="font-size: 12px;" required></td>
+                <td><input type="text" class="fieldEdit values descuentos" name="" value="${data1[i].descuento}" /></td>`;
+        sumaDescuento += parseFloat(data1[i].descuento);
+
+        for (let j = indiceHE; j < (cantHE + indiceHE); j++) {
+            html += `<td><input type="text" class="fieldEdit values valueHE" name="" id="" data-codigo="${data2[j].tipo_horaExtra}" value="${data2[j].cantidad}" required pattern="^[0-9]{1,2}?(.[0,5]{0,1})?$" title="Solo numeros, debe terminar en un decimal .5 o en la unidad mas próxima"/></td>`;
+            sumaHE += parseFloat(data2[j].cantidad);
+        }
+
+        for (let k = indiceRec; k < (cantRecargo + indiceRec); k++) {
+            html += `<td><input type="text" class="fieldEdit values valueRecargo" name="" id="" data-codigo="${data3[k].tipo_recargo}" value="${data3[k].cantidad}" required pattern="^[0-9]{1,2}?(.[0,5]{0,1})?$" title="Solo numeros, debe terminar en un decimal .5 o en la unidad mas próxima"/></td>`;
+            sumaRecargo +=parseFloat(data3[k].cantidad);
+        }
+
+        html += `<td><span style="color: tomato;" data-id="${data1[i].id}" class="deleteRow icon solid fa-window-close fi" onclick="deleteRow(event, this, true)"></span></td>`;
+        html += `<td><span style="color: greenyellow; font-size: 15px;" data-id="${data1[i].id}" class="updateRow icon solid fa-check-circle fi" onclick="updateRow(event, this)"></span></td>`;
+
+        indiceRec += cantRecargo;
+        indiceHE += cantHE;
+        html += `</tr>`;
+    }
+
+    $('#calcHE').html(sumaHE);
+    $('#calcRec').html(sumaRecargo);
+    $('#calcDescuentos').html(sumaDescuento);
+    $('#bodyTableEdit').append(html);
+}
+
+function fieldsEdit(){
+    $('.fieldEdit').change(function () {
+        $(this).addClass('editado');
+    });
+}
+
+function buttonAllowRows(){
+    $('#allowAddRows').click(function () {
+        $('#tableHE').removeClass("sectionDisabled");
+        $(this).removeClass('fa-toggle-off');
+        $(this).addClass('fa-toggle-on');
+        $(this).html('Cancelar');
+        $(this).css('background-color', 'tomato');
+        $(this).removeAttr('id');
+        $(this).attr('id', 'deniedAddRows');
+
+        buttonDeniedRows();
+    });
+}
+
+function buttonDeniedRows(){
+    $('#deniedAddRows').click(function () {
+        $('#tableHE').addClass("sectionDisabled");
+        $(this).removeClass('fa-toggle-on');
+        $(this).addClass('fa-toggle-off');
+        $(this).html('Agregar Horas Extra');
+        $(this).css('background-color', '#5480f1');
+        $(this).removeAttr('id');
+        $(this).attr('id', 'allowAddRows');
+
+        buttonAllowRows();
+    });
+}

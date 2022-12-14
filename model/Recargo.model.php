@@ -10,6 +10,7 @@ class Recargo{
     private $idHE;
     private $tipoRecargo;
     private $cantidad;
+    private $id_reporteHE;
 
     function __construct(){
         require_once "../config/DB.config.php";
@@ -18,21 +19,29 @@ class Recargo{
     }
 
     public function insert($data){
-        $this->id = $data['horaExtra'];
-        $recargos = json_decode($data["valuesRecargo"]);
 
-        $this->sql = "INSERT INTO dbo.Recargo (id_horaExtra, tipo_recargo, cantidad) VALUES (:id_horaExtra, :tipo_recargo, :cantidad)";
-        $this->result = $this->connection->prepare($this->sql);
+        try {
+            $recargos = json_decode($data["valuesRecargo"]);
 
-        $this->result->bindParam(':id_horaExtra' , $this->id);
+            $this->sql = "INSERT INTO dbo.Recargos (id_horaExtra, tipo_recargo, cantidad) VALUES (:id_horaExtra, :tipo_recargo, :cantidad)";
+            $this->result = $this->connection->prepare($this->sql);
 
-        foreach($recargos as $recargo){
-            $this->result->bindParam(':tipo_recargo' , $recargo->codigo);
-            $this->result->bindParam(':cantidad' , $recargo->value);
-            $this->result->execute();
+            foreach($recargos as $recargo){
+                foreach ($recargo as $item){
+                    $this->result->bindParam(':id_horaExtra' , $item->id);
+                    $this->result->bindParam(':tipo_recargo' , $item->codigo);
+                    $this->result->bindParam(':cantidad' , $item->value);
+                    $this->result->execute();
+                }
+            }
+
+            return true;
+
+        } catch (\Throwable $th) {
+            return false;
+            throw $th;
         }
 
-        return true;
     }
 
     public function delete(){}
@@ -47,7 +56,7 @@ class Recargo{
             $this->id = $data['horaExtra'];
             $recargos = json_decode($data["valuesRecargo"]);
 
-            $this->sql = "UPDATE dbo.Recargo SET cantidad = :cantidad WHERE id_horaExtra = :id_horaExtra AND tipo_recargo = :tipo_recargo";
+            $this->sql = "UPDATE dbo.Recargos SET cantidad = :cantidad WHERE id_horaExtra = :id_horaExtra AND tipo_recargo = :tipo_recargo";
             $this->result = $this->connection->prepare($this->sql);
 
             $this->result->bindParam(':id_horaExtra' , $this->id);
@@ -78,7 +87,7 @@ class Recargo{
         if ($object["id"]) {
             $this->idHE = trim($object["id"]);
 
-            $this->sql = 'SELECT *, T.nombre AS recargo FROM Recargo R INNER JOIN TipoRecargo T ON R.tipo_recargo = T.codigo WHERE id_horaExtra = :id';
+            $this->sql = 'SELECT R.tipo_recargo, T.nombre, SUM(R.cantidad) AS cantidad FROM Recargos R INNER JOIN TiposRecargo T ON R.tipo_recargo = T.codigo INNER JOIN HorasExtra H ON R.id_horaExtra = H.id WHERE H.id_reporteHE = :id GROUP BY R.tipo_recargo, T.nombre';
             $this->result = $this->connection->prepare($this->sql);
             $this->result->bindParam(':id' , $this->idHE);
             $this->result->execute();
@@ -88,6 +97,22 @@ class Recargo{
         }
 
         return false;
+    }
+
+    public function getCantRecargosByReport($object){
+        if (!$object["id_reporteHE"]) {
+            return false;
+        }
+
+        $this->id_reporteHE = $object["id_reporteHE"];
+
+        $this->sql = 'SELECT R.id_horaExtra, R.cantidad, R.tipo_recargo, T.nombre FROM Recargos R INNER JOIN TiposRecargo T ON R.tipo_recargo = T.codigo INNER JOIN HorasExtra H ON R.id_horaExtra = H.id WHERE H.id_reporteHE = :id_reporteHE ORDER BY R.id_horaExtra ASC';
+        $this->result = $this->connection->prepare($this->sql);
+        $this->result->bindParam(':id_reporteHE' , $this->id_reporteHE);
+        $this->result->execute();
+
+        $json = json_encode($this->result->fetchAll(PDO::FETCH_OBJ));
+        return $json;
     }
 
     public function gettipoRecargo(){

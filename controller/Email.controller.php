@@ -11,12 +11,12 @@ switch ($_GET['email']) {
         $from = $_POST['from'];
 
         $empleado = $_POST['empleado'];
-        $solicitudViaticos = $_POST['idHE'];
+        $reporteHE = $_POST['idReporte'];
 
         $Subject = 'Solicitud revision de Horas Extra para ' . $empleado;
-        $body = 'Buen dia, Tiene una solicitud de Horas Extra con el número ' . $solicitudViaticos . ' pendiente por revisar. ' . '. Este mensaje ha sido generado automáticamente.';
+        $body = 'Buen dia, Tiene una solicitud de Horas Extra con el número ' . $reporteHE . ' pendiente por revisar. ' . '. Este mensaje ha sido generado automáticamente.';
 
-        $result = $email->sendEmail('william.enciso@servimeters.com', 'bautistawilliam961@gmail.com', $Subject, $body);
+        $result = $email->sendEmail('soporte@servimeters.net', 'bautistawilliam961@gmail.com', 'bautistawilliam961@gmail.com', $Subject, $body);
         echo $result;
         exit();
         break;
@@ -25,12 +25,12 @@ switch ($_GET['email']) {
         $from = $_POST['from'];
 
         $empleado = $_POST['empleado'];
-        $solicitudViaticos = $_POST['idHE'];
+        $reporteHE = $_POST['idReporte'];
 
         $Subject = 'Actualizacion Horas Extra por ' . $empleado;
-        $body = 'Buen dia, Las Horas Extra con el número ' . $solicitudViaticos . ' han sido actualizadas y estan pendiente por revisar. ' . '. Este mensaje ha sido generado automáticamente.';
+        $body = 'Buen dia, Las Horas Extra con el número ' . $reporteHE . ' han sido actualizadas y estan pendiente por revisar. ' . '. Este mensaje ha sido generado automáticamente.';
 
-        $result = $email->sendEmail('william.enciso@servimeters.com', 'bautistawilliam961@gmail.com', $Subject, $body);
+        $result = $email->sendEmail('soporte@servimeters.net', 'bautistawilliam961@gmail.com', 'bautistawilliam961@gmail.com', $Subject, $body);
         echo $result;
         exit();
         break;
@@ -39,13 +39,13 @@ switch ($_GET['email']) {
         $from = $_POST['from'];
 
         $empleado = $_POST['empleado'];
-        $solicitudViaticos = $_POST['idHE'];
+        $reporteHE = $_POST['idHE'];
         $novedad = $_POST['novedad'];
 
         $Subject = 'Novedad de Horas Extra por ' . $empleado;
-        $body = 'Buen dia, Tiene una novedad sobre las Horas Extra con el número ' . $solicitudViaticos . '. Novedad: ' . $novedad . ' Este mensaje ha sido generado automáticamente. Pruebas Sm.';
+        $body = 'Buen dia, Tiene una novedad sobre las Horas Extra con el número ' . $reporteHE . '. Novedad: ' . $novedad . ' Este mensaje ha sido generado automáticamente. Pruebas Sm.';
 
-        $result = $email->sendEmail('william.enciso@servimeters.com', 'bautistawilliam961@gmail.com', $Subject, $body);
+        $result = $email->sendEmail('soporte@servimeters.net', 'bautistawilliam961@gmail.com', 'bautistawilliam961@gmail.com',  $Subject, $body);
         echo $result;
         exit();
 
@@ -54,13 +54,18 @@ switch ($_GET['email']) {
         $to = $_POST['to'];
         $from = $_POST['from'];
 
+        if (isset($_POST['cc'])){
+            $cc = $_POST['cc'];
+        }
+
         $empleado = $_POST['empleado'];
-        $solicitudViaticos = $_POST['idHE'];
+        $reporteHE = $_POST['idReporte'];
+        $motivo = $_POST['motivo'];
 
         $Subject = 'Rechazo de Horas Extra por ' . $empleado;
-        $body = 'Buen dia, Las Horas Extra con el número ' . $solicitudViaticos . ' han sido rechazados. Este mensaje ha sido generado automáticamente. Pruebas Sm.';
+        $body = 'Buen dia, Las Horas Extra con el número ' . $reporteHE . ' han sido rechazados. '. $motivo .'. Este mensaje ha sido generado automáticamente. Pruebas Sm.';
 
-        $result = $email->sendEmail('william.enciso@servimeters.com', 'bautistawilliam961@gmail.com', $Subject, $body);
+        $result = $email->sendEmail('soporte@servimeters.net', 'bautistawilliam961@gmail.com', 'bautistawilliam961@gmail.com', $Subject, $body);
         echo $result;
         exit();
 
@@ -70,12 +75,12 @@ switch ($_GET['email']) {
         $from = $_POST['from'];
 
         $empleado = $_POST['empleado'];
-        $solicitudViaticos = $_POST['idHE'];
+        $reporteHE = $_POST['idReporte'];
 
         $Subject = 'Aprobación de Horas Extra para ' . $empleado;
-        $body = 'Buen dia, Las Horas Extra con el número ' . $solicitudViaticos . ' han sido aprobadas. Este mensaje ha sido generado automáticamente. Pruebas Sm.';
+        $body = 'Buen dia, Las Horas Extra con el número ' . $reporteHE . ' han sido aprobadas. Este mensaje ha sido generado automáticamente. Pruebas Sm.';
 
-        $result = $email->sendEmail('william.enciso@servimeters.com', $to, $Subject, $body);
+        $result = $email->sendEmail('soporte@servimeters.net', $to, 'bautistawilliam961@gmail.com', $Subject, $body);
         echo $result;
         exit();
         break;

@@ -46,13 +46,14 @@ $(document).ready(function(){
                 html += `<td></td>`;
                 html += `<td>${index}</td>`;
                 html += `<td>${dato.id}</td>`;
-                html += `<td>${dato.fechaReporte}</td>`;
+                html += `<td>${dato.cc}</td>`;
                 html += `<td>${anno.getFullYear()}</td>`;
                 html += `<td>${ meses[anno.getMonth()] }</td>`;
                 html += `<td>${dato.empleado}</td>`;
                 html += `<td>${dato.aprobadorNombre}</td>`;
                 html += `<td>${dato.aprobadorTipo}</td>`;
                 html += `<td>${dato.estadoNombre}</td>`;
+                html += `<td><span data-reporte="${dato.id}" class="openDetails icon solid fa-eye fit" id="detalle_${dato.id}"></span></td>`;
 
                 html += '</tr>';
 
@@ -69,18 +70,20 @@ $(document).ready(function(){
                     },
                     {data: 'num'},
                     {data: 'id'},
-                    {data: 'fecha reporte'},
+                    {data: 'documento'},
                     {data: 'año'},
                     {data: 'mes'},
                     {data: 'colaborador'},
                     {data: 'aprobador'},
                     {data: 'rol aprobador'},
-                    {data: 'estado'}
+                    {data: 'estado'},
+                    {data: 'ver detalle'}
                 ],
                 paging: false,
                 "language": {
                     "search": "Ingrese un valor para filtrar la tabla: ",
-                    "info": "Hay _TOTAL_ registros"
+                    "info": "Hay _TOTAL_ registros",
+                    "zeroRecords": "No hay registros para mostrar"
                 },
                 dom: '<"top"if>rt<"clear">',
                 stateSave: true,
@@ -104,13 +107,15 @@ $(document).ready(function(){
                         }
                     }
 
-                    $.when($.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=getDetalleHora', type: 'post',}), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=Recargo&crud=getRecargos', type: 'post',}))
-                        .then(function (result1, result2) {
-                            row.child(format(row.data(), {result1, result2})).show();
+                    $.when($.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=getDetalleHora', type: 'post',}), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=Recargo&crud=getRecargos', type: 'post',}), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=getDescuentoTotal', type: 'post',}), $.ajax('../controller/CRUD.controller.php?action=listAll&model=CentroCosto&crud=get'))
+                        .then(function (result1, result2, result3, result4) {
+                            row.child(format(row.data(), {result1, result2, result3, result4})).show();
                             tr.addClass('shown');
                             showComments();
                             showAprobar();
                             rechazar();
+                            selectCECO(row.data().id);
+                            enableUpdateCECO();
                         });
 
                 }
@@ -135,6 +140,8 @@ function format(d, {...results}) {
 
     var arrayHE = JSON.parse(results.result1[0]);
     var arrayRecargo = JSON.parse(results.result2[0]);
+    var descuentoTotal = JSON.parse(results.result3[0]);
+    descuentoTotal = descuentoTotal[0].cantidad;
 
     var headTableHE = `<thead>
                        <tr>`;
@@ -162,13 +169,20 @@ function format(d, {...results}) {
         sumaRec += parseFloat(element.cantidad);
     });
 
+    var htmlCECO = '<option value=""></option>';
+    var arrayCECO = JSON.parse(results.result4[0]);
+
+    arrayCECO.forEach(element => {
+        htmlCECO += `<option value="${element.id}">${element.titulo}</option>`;
+    });
+
             html = `<section class="wrapper" style="background-color: rgb(245 245 245 / 42%); padding: 50px 15px 70px 15px; box-shadow: 1px -1px 20px 5px rgb(0 0 0 / 53%);">
                 <div class="content">
 			            <div class="row gtr-uniform gtr-50">
 			                <div class="col-10 col-8-xsmall" style="margin: auto;">
                                 <ul class="actions special">
-                                        <li> <button type="submit" data-he="${d.id}" data-estado="${data.estado}" class="aprobar button icon solid fa-check-circle fit" style="background-color: #3c763d">Aprobar</button> </li>
-                                        <li> <button type="submit" data-he="${d.id}" data-estado="${data.estado}" class="rechazar button icon solid fa-trash-alt fit" style="background-color: tomato">Rechazar</button> </li>
+                                        <li> <button type="submit" data-reporte="${d.id}" data-estado="${data.id_estado}" class="aprobar button icon solid fa-check-circle fit" style="background-color: #3c763d">Aprobar</button> </li>
+                                        <li> <button type="submit" data-reporte="${d.id}" data-estado="${data.id_estado}" class="rechazar button icon solid fa-trash-alt fit" style="background-color: tomato">Rechazar</button> </li>
                                 </ul>
                                 <div class="col-8 col-6-xsmall" id="moduloGestionar${d.id}" style="margin: auto; padding: 10px">
                                     
@@ -178,17 +192,19 @@ function format(d, {...results}) {
 			                <div class="col-3 col-6-xsmall" style="margin: auto;">
                                 <input type="text" name="index" id="index_${d.id}" value=${d.num} placeholder="Index" style="display: none;"/>
 			                    <label for="ceco" style="font-weight: bold;">Centro de Costo</label>
-                                <input type="text" name="ceco" id="ceco" value=${data.cecoName} placeholder="Centro de Costo" disabled/>
-                            </div>
-                            <div class="col-3 col-6-xsmall" style="margin: auto;">
-			                    <label for="novedad" style="font-weight: bold;">Motivo de la Novedad</label>
-                                <input type="text" name="novedad" id="novedad" value=${data.novedad} placeholder="Novedad" disabled/>
+                                <select name="ceco" class="cecoSelect" id="ceco_${d.id}" data-reporte="${d.id}" data-idceco="${data.id_ceco}">
+                                    ${htmlCECO}
+                                </select>
+                                <div id="buttonCECO_${d.id}" style="display: none;">
+                                    <br>
+                                    <button type="submit" data-reporte="${d.id}" class="cecoUpdate button primary icon solid fa-upload fit">Actualizar CECO</button>
+                                </div>
                             </div>
                             <div class="col-12 col-8-xsmall">
                                 <hr>
                                 <table>
                                 ${headTableHE}
-                                <th>Suma</th>
+                                <th>Total HE</th>
                                 </tr>
                                 </thead>
                                 ${bodyTableHE}
@@ -201,7 +217,7 @@ function format(d, {...results}) {
                                 <hr>
                                 <table>
                                 ${headTableRec}
-                                <th>Suma</th>
+                                <th>Total Recargos</th>
                                 </tr>
                                 </thead>
                                 ${bodyTableRec}
@@ -213,7 +229,7 @@ function format(d, {...results}) {
                             </div>
                             <div class="col-3 col-6-xsmall" style="margin: auto;">
                                 <label for="descuento" style="font-weight: bold;">Permisos Descuentos</label>
-                                <input type="text" name="descuento" id="descuento" value=${data.descuento} placeholder="Descuento" disabled/>
+                                <input type="text" name="descuento" id="descuento" value=${descuentoTotal} placeholder="Descuento" disabled/>
                             </div>   
                             <br>
                             <div class="col-3 col-6-xsmall" style="margin: auto;">
@@ -235,7 +251,7 @@ function format(d, {...results}) {
                                 <div class="col-5 col-4-xsmall" style="margin: auto;">
                                     <form action="" id="formReporte">
                                         <label for="comentario" style="font-weight: bold;">Agregar Comentario</label>
-                                        <textarea name="comentario" id="comentario_${d.id}" placeholder="Ingrese texto para el comentario." rows="3" style="resize: none;" required></textarea>
+                                        <textarea name="comentario" id="comentario_${d.id}" placeholder="Ingrese texto para el comentario." rows="3" style="resize: none; height: 50px;" required></textarea>
                                         <br>
                                         <ul class="actions special">
                                             <li> <button type="submit" onclick="sendComment(event, this)" class="sendComment button primary icon solid fa-paper-plane fit" id="sendComment_${d.id}" data-id="${d.id}" data-isVisible="false">Enviar Comentario</button> </li>
@@ -263,7 +279,7 @@ function showComments(){
 
         let object = {
             'object': {
-                'id': id
+                'id_reporteHE': id
             }
         }
 
@@ -274,9 +290,9 @@ function showComments(){
 
                 arrayComments.forEach(element=>{
                     htmlComments += `<tr>
-                            <td style="text-align: left">${element.creadoPor} - ${element.fecha}</td>
+                            <td style="text-align: left; background-color: #d9d9d9; font-weight: bold;">${element.creadoPor} - ${element.fecha}</td>
                         </tr>
-                        <tr>
+                        <tr style="border-bottom: 2px solid black;">
                             <td>${element.cuerpo}</td>
                         </tr>`;
                 });
@@ -303,7 +319,7 @@ function hideComments(){
     });
 }
 
-function sendComment(e, element) {
+async function sendComment(e, element) {
 
         e.preventDefault();
 
@@ -328,39 +344,15 @@ function sendComment(e, element) {
 
         comentario = comentario.replaceAll('script', '');
 
-        let creador = $('#usuarioLogin').html();
-        let fecha = new Date();
-        fecha = fecha.getFullYear() + '-' + (fecha.getMonth() + 1) + '-' + fecha.getDate();
-
-        let object = {
-            'object': {
-                'creadoPor': creador,
-                'fecha': fecha,
-                'idHE': id,
-                'cuerpo': comentario
-            }
-        }
-
-        $.ajax({
-            data:  object,
-            url: '../controller/CRUD.controller.php?action=execute&model=Comentario&crud=insert',
-            type: 'post',
-            beforeSend: function() {
-                element.style.display = "none";
-            },
-            success: function(result){
-
-                if (isNaN(parseInt(result))) {
-                    $.notify('No se envió el comentario', 'error');
-                    return false;
-                }
+        element.style.display = "none";
+        await executeComment(id, comentario);
 
                 if (isCommentsVisibles == 'true'){
 
                     row = `<tr>
-                        <td style="text-align: left" id="comment-${result}">${creador} - ${fecha}</td>
+                        <td style="text-align: left; background-color: #d9d9d9; font-weight: bold;" id="comment-${result}">${creador} - ${fecha}</td>
                         </tr>
-                        <tr>
+                        <tr style="border-bottom: 2px solid black;">
                         <td>${comentario}</td>
                         </tr>`;
 
@@ -398,52 +390,26 @@ function sendComment(e, element) {
 
                 return true;
 
-            }
-
-        });
 }
 
 async function showAprobar() {
     $('.aprobar').click(async function (){
 
-        let he = $(this).data('he');
+        let reporte = $(this).data('reporte');
         let estado = $(this).data('estado');
+        let arrayData;
+        let values;
+
         let object;
 
-        console.log(estado);
-        console.log(typeof estado);
-
         switch (estado.toString()) {
-            case '1002':
-                let html = `<section id="" class="wrapper style2 special fade" style="padding: 20px">
-                        <div class="col-6 col-4-xsmall" id="moduloGestionar" style="margin: auto;">
-                            <form action="" id="gestionarFrom">
-                                <label for="listAprobador">Gerente Aprobador</label>
-                                <select name="listAprobador${he}" id="listAprobador${he}">
-                                </select>
-                                <br>
-                                <ul class="actions special">
-                                    <li> <button type="submit" data-id="${he}" class="sendData button primary icon solid fa-check-circle fi">Enviar</button> </li>
-                                </ul>
-                            </form>
-                        </div> 
-                    </section>`;
-                let htmlGerente;
-
-                $.when($.ajax('../controller/CRUD.controller.php?action=listAll&model=Aprobador&crud=get'))
-                    .then(function (result){
-                        let datos = JSON.parse(result);
-                        datos.forEach(element => {
-                            if (element.tipo == 'Gerente') {
-                                htmlGerente += `<option value="${element.id}" data-correoAprobador="${element.correo}">${element.nombre}</option>`;
-                            }
-                        });
-                        $(`#moduloGestionar${he}`).html(html);
-                        $(`#listAprobador${he}`).html(htmlGerente);
-                        aprobar();
-                    })
+            case '3':
+            case '6': //REVISION JEFE
+                loadModuleGestionar(reporte, 'Gerente', 5);
                 break;
-            case '1003':
+            case '5':
+            case '8':
+            case '10': // REVISION GERENTE
 
                 object = {
                     'object': {
@@ -454,12 +420,12 @@ async function showAprobar() {
                 getAprobadorByGestion(object).then(async (res) => {
                     console.log(res);
                     let data = JSON.parse(res);
-                    let estado = '1004';
+                    let estado = '7';
                     var correoAprobador = data[0].correo;
 
                     object = {
                         'object': {
-                            'he': he,
+                            'reporte': reporte,
                             'aprobador': data[0].id,
                             'estado': estado,
                         }
@@ -473,9 +439,9 @@ async function showAprobar() {
                             return true;
                         }
 
-                        let arrayData = localStorage.getItem('arrayHEporGestionar');
-                        let values = JSON.parse(arrayData);
-                        values = values[$(`#index_${he}`).val()];
+                        arrayData = localStorage.getItem('arrayHEporGestionar');
+                        values = JSON.parse(arrayData);
+                        values = values[$(`#index_${reporte}`).val()];
 
                         let correoEmpleado = values.correoEmpleado;
                         let empleado = values.empleado;
@@ -484,7 +450,7 @@ async function showAprobar() {
                             'to': correoAprobador,
                             'from': correoEmpleado,
                             'empleado': empleado,
-                            'idHE': he
+                            'idReporte': reporte
                         }
 
                         sendEmail(data, 'solicitudEmpleado');
@@ -499,7 +465,7 @@ async function showAprobar() {
                 });
 
                 break;
-            case '1004':
+            case '7': //REVISION RH
 
                 object = {
                     'object': {
@@ -510,12 +476,12 @@ async function showAprobar() {
                 getAprobadorByGestion(object).then(async (res) => {
                     console.log(res);
                     let data = JSON.parse(res);
-                    let estado = '1005';
+                    let estado = '9';
                     var correoAprobador = data[0].correo;
 
                     object = {
                         'object': {
-                            'he': he,
+                            'reporte': reporte,
                             'aprobador': data[0].id,
                             'estado': estado,
                         }
@@ -531,9 +497,9 @@ async function showAprobar() {
                             return true;
                         }
 
-                        let arrayData = localStorage.getItem('arrayHEporGestionar');
-                        let values = JSON.parse(arrayData);
-                        values = values[$(`#index_${he}`).val()];
+                        arrayData = localStorage.getItem('arrayHEporGestionar');
+                        values = JSON.parse(arrayData);
+                        values = values[$(`#index_${reporte}`).val()];
 
                         let correoEmpleado = values.correoEmpleado;
                         let empleado = values.empleado;
@@ -542,7 +508,7 @@ async function showAprobar() {
                             'to': correoAprobador,
                             'from': correoEmpleado,
                             'empleado': empleado,
-                            'idHE': he
+                            'idReporte': reporte
                         }
 
                         sendEmail(data, 'solicitudEmpleado');
@@ -557,17 +523,17 @@ async function showAprobar() {
                 });
 
                 break;
-            case '1005':
-                let estado = '1';
+            case '9': //REVISION CONTABLE
+                let estado = '1'; //APROBADO
 
-                let arrayData = localStorage.getItem('arrayHEporGestionar');
-                let values = JSON.parse(arrayData);
-                values = values[$(`#index_${he}`).val()];
+                arrayData = localStorage.getItem('arrayHEporGestionar');
+                values = JSON.parse(arrayData);
+                values = values[$(`#index_${reporte}`).val()];
 
                 object = {
                     'object': {
-                        'he': he,
-                        'aprobador': values.aprobador,
+                        'reporte': reporte,
+                        'aprobador': values.id_aprobador,
                         'estado': estado,
                     }
                 }
@@ -590,7 +556,7 @@ async function showAprobar() {
                         'to': correoEmpleado,
                         'from': correoAprobador,
                         'empleado': empleado,
-                        'idHE': he
+                        'idReporte': reporte
                     }
 
                     sendEmail(data, 'aprobacionHE');
@@ -612,125 +578,138 @@ async function showAprobar() {
 function rechazar() {
     $('.rechazar').click(function(){
 
-        let option = confirm('¿Desea rechazar el registro?');
-
-        if (!option){
-            $.notify('Se ha cancelado la transacción.', 'info');
-            return false;
-        }
-
-        let he = $(this).data('he');
+        let reporte = $(this).data('reporte');
         let estado =  $(this).data('estado');
 
         switch (estado.toString()) {
-            case '1004':
-                estado = '1007';
+            case '7': //REVISION RH
+                estado = '8'; //RECHAZO RH
+                loadModuleGestionar(reporte, 'Gerente', estado);
                 break;
-            case '1005':
-                estado = '1006';
+            case '9': //REVISION CONTABLE
+                estado = '10'; //RECHAZO CONTABLE
+                loadModuleGestionar(reporte, 'Gerente', estado);
+                break;
+            case '8':
+            case '10':
+            case '5': //REVISION GERENTE
+                swal("¿Desea seleccionar un Jefe para el rechazo?", {
+                    buttons: ["No!", "Si, seleccionar!"],
+                }).then((val)=>{
+                    if (val){
+                        estado = '6'; // RECHAZO GERENTE
+                        loadModuleGestionar(reporte, 'Jefe', estado);
+                    }else{
+                        estado = '2'; // RECHAZADO
+                        rejectReport(reporte, estado);
+                    }
+                })
                 break;
             default:
-                estado = '2';
+                estado = '2'; //RECHAZADO
+                rejectReport(reporte, estado);
                 break;
         }
 
+    });
+
+}
+
+function getDetailsReject(){
+    return new Promise((resolve, reject)=>{
+        swal('Escriba un motivo de rechazo: ', {
+            content: 'input',
+        }).then(async (val)=>{
+            if (val){
+                val = `Motivo de rechazo: ${val}`;
+                resolve(val);
+            }else{
+                swal('Has cancelado el rechazo!');
+                reject(false);
+            }
+        })
+    });
+}
+
+function executeComment(id, comentario){
+    return new Promise((resolve, reject)=>{
+        let creador = $('#usuarioLogin').html();
+        let fecha = new Date();
+        fecha = fecha.getFullYear() + '-' + (fecha.getMonth() + 1) + '-' + fecha.getDate();
+
         let object = {
             'object': {
-                'he': he,
+                'creadoPor': creador,
+                'fecha': fecha,
+                'idReporteHE': id,
+                'cuerpo': comentario
+            }
+        }
+
+        $.ajax({
+            data:  object,
+            url: '../controller/CRUD.controller.php?action=execute&model=Comentario&crud=insert',
+            type: 'post',
+            success: function(result){
+
+                if (isNaN(parseInt(result))) {
+                    $.notify('No se envió el comentario', 'error');
+                    reject(false);
+                }
+
+                resolve(true);
+
+            }
+        });
+    });
+}
+
+function executeAction() {
+    $('.sendData').click(async function (e){
+        e.preventDefault();
+        let reporte = $(this).data('id');
+        let aprobador = $(`#listAprobador${reporte}`).find(':selected').val();
+        let estado = $(this).data('estado');
+        let ejecutado;
+
+        let object = {
+            'object': {
+                'reporte': reporte,
+                'aprobador': aprobador,
                 'estado': estado,
             }
         }
 
         console.log(object);
 
-        $.ajax({
-            data: object,
-            url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=rejectEstado',
-            type: 'post',
-            beforeSend: function () {
-
-            },
-            success: function (result) {
-                if (isNaN(parseInt(result))) {
-                    $.notify('No se actualizó el registro de Horas Extra', 'error');
-                    return false;
-                }
-
-                $.notify('Registro rechazado con éxito', 'success');
-
-                let arrayData = localStorage.getItem('arrayHEporGestionar');
-                let values = JSON.parse(arrayData);
-                values = values[$(`#index_${he}`).val()];
-
-                var correoAprobador = values.correoJefe;
-                let correoEmpleado = values.correoEmpleado;
-                let empleado = values.aprobadorNombre;
-
-                var data = {
-                    'to': correoEmpleado,
-                    'from': correoAprobador,
-                    'empleado': empleado,
-                    'idHE': he
-                }
-
-                sendEmail(data, 'rechazoHE');
-
-                reloadPage();
-
-                return true;
-
-            }
-        });
-
-
-    });
-
-}
-
-function aprobar() {
-    $('.sendData').click(async function (e){
-        e.preventDefault();
-        let he = $(this).data('id');
-        let aprobador = $(`#listAprobador${he}`).find(':selected').val();
-        let estado = '1003';
-
-        let object = {
-            'object': {
-                'he': he,
-                'aprobador': aprobador,
-                'estado': estado,
-            }
-        }
-
         try {
-            let ejecutado = await ejecutarAprobacion(object);
+            if (estado == 5){
+                try {
+                    await ejecutarAprobacion(object);
+                    let data = getDataEmailAprove(reporte);
+                    sendEmail(data, 'solicitudEmpleado');
+                    reloadPage();
+                }catch (e) {
+                    return true;
+                }
 
-            console.log('Ejecutado ', ejecutado);
 
-            if (!ejecutado){
-                return true;
+            }else if([6, 8, 10].includes(estado)){
+                let detailReject;
+                try {
+                    detailReject = await getDetailsReject();
+                    await executeComment(reporte, detailReject);
+                    await ejecutarRechazo(object);
+                    let data = getDataEmailReject(reporte);
+                    data.motivo = detailReject;
+                    sendEmail(data, 'rechazoHE');
+                    reloadPage();
+                }catch (e) {
+                    console.log('Rechazo cancelado ', e);
+                    return true;
+                }
+
             }
-
-            let arrayData = localStorage.getItem('arrayHEporGestionar');
-            let values = JSON.parse(arrayData);
-            values = values[$(`#index_${he}`).val()];
-
-            var correoAprobador = $(`#listAprobador${he}`).find(':selected').data('correoaprobador');
-            let correoEmpleado = values.correoEmpleado;
-            let empleado = values.empleado;
-
-            var data = {
-                'to': correoAprobador,
-                'from': correoEmpleado,
-                'empleado': empleado,
-                'idHE': he
-            }
-
-            sendEmail(data, 'solicitudEmpleado');
-
-            reloadPage();
-
-            return true;
 
         }catch (e){
             console.log(e);
@@ -741,35 +720,38 @@ function aprobar() {
 
 function ejecutarAprobacion(object) {
     return new Promise((resolve, reject)=>{
-        let option = confirm('¿Desea enviar a aprobación?');
-
-        if (!option){
-            $.notify('Se ha cancelado la transacción.', 'info');
-            resolve(false);
-            return;
-        }
-
-        $.ajax({
-            data: object,
-            url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=updateEstado',
-            type: 'post',
-            beforeSend: function () {
-
-            },
-            success: function (result) {
-                console.log('Resultado Aprob ', result);
-
-                if (isNaN(parseInt(result))) {
-                    $.notify('No se actualizó el registro de Horas Extra', 'error');
+        swal("¿Desea aprobar el registro?", {
+            buttons: ["No!", "Si, aprobar!"],
+        }).then(async (val)=>{
+            if (val){
+                try {
+                    await updateReport(object);
+                    $.notify('Registro aprobado con éxito', 'success');
+                    resolve(true);
+                }catch (e) {
+                    console.log('Error al aprobar ', e);
                     reject(false);
-                    return;
                 }
 
-                $.notify('Registro aprobado con éxito', 'success');
-                resolve(true);
-                return;
+            }else{
+                $.notify('Se ha cancelado la transacción.', 'info');
+                reject(false);
             }
         });
+    });
+}
+
+function ejecutarRechazo(object){
+
+    return new Promise(async (resolve, reject)=>{
+        try {
+            await updateReport(object);
+            $.notify('Registro rechazado con éxito', 'success');
+            resolve(true);
+        }catch (e){
+            console.log('Error al ejecutar rechazo ', e);
+            reject(false);
+        }
     });
 }
 
@@ -780,9 +762,9 @@ function sendEmail(data, tipo){
         type: 'post',
         success: function(result){
 
-            console.log(result);
+            console.log('Resultado alerta....', result);
 
-            if (result == 1) {
+            if (result == 'Message has been sent1') {
                 $.notify('Notificación enviada', 'success');
                 return true;
             }
@@ -797,10 +779,13 @@ function reloadPage() {
     $.when($.ajax('./gestionHE/gestionar.view.php'))
         .then(function(result) {
             var script = "<script src=\"../assets/js/aproveRejectHE.js\"></script>";
+            var script2 = "<script src=\"../assets/js/detailsReporte.js\"></script>";
 
             let type = $('#typeGestion').data('type');
             //Cargar HTML
             $('#links').append(script);
+            $('#links').append(script2);
+
             $('#result').html(result);
             $('#typeGestion').attr('data-type', type);
         })
@@ -822,6 +807,196 @@ function getAprobadorByGestion(object) {
 
             }
         })
+    });
+}
+
+function selectCECO(id){
+    let idCECO = $(`#ceco_${id}`).data('idceco');
+    if (idCECO !== null){
+        $(`#ceco_${id} option[value=${idCECO}]`).attr("selected", true);
+    }
+}
+
+function enableUpdateCECO(){
+    $('.cecoSelect').on('change', function (){
+        let idReport = $(this).data('reporte');
+        $(`#buttonCECO_${idReport}`).css('display', 'inline');
+        updateCECO();
+    })
+}
+
+function updateCECO() {
+    $('.cecoUpdate').on('click', function (){
+        let id = $(this).data('reporte');
+        let ceco = $(`#ceco_${id}`).children("option:selected").val();
+        let index = $(`#index_${id}`).val();
+
+        let object = {
+            'object' : {
+                'id': id,
+                'id_ceco': ceco
+            }
+        }
+
+        $.ajax({
+            data:  object,
+            url: '../controller/CRUD.controller.php?action=execute&model=Reporte&crud=updateCECO',
+            type: 'post',
+            success: function(result){
+
+                if (result !== '1'){
+                    $.notify('No se actualizo el Centro de Costo', 'error');
+                    return;
+                }
+
+                var data = localStorage.getItem('arrayHEporGestionar');
+                data = JSON.parse(data);
+                var values = data[index];
+                values.id_ceco = ceco;
+                data[index] = values;
+
+                localStorage.setItem('arrayHEporGestionar', JSON.stringify(data));
+
+                $.notify('Se actualizo el Centro de Costo', 'success');
+            }
+
+        });
+    })
+}
+
+function loadModuleGestionar(reporte, type, estado){
+    let html = `<section id="" class="wrapper style2 special fade" style="padding: 20px">
+                        <div class="col-6 col-4-xsmall" id="moduloGestionar" style="margin: auto;">
+                            <form action="" id="gestionarFrom">
+                                <label for="listAprobador">Gerente Aprobador</label>
+                                <select name="listAprobador${reporte}" id="listAprobador${reporte}">
+                                </select>
+                                <br>
+                                <ul class="actions special">
+                                    <li> <button type="submit" data-id="${reporte}" data-estado="${estado}" class="sendData button primary icon solid fa-check-circle fi">Enviar</button> </li>
+                                </ul>
+                            </form>
+                        </div> 
+                    </section>`;
+    let htmlGerente;
+
+    $.when($.ajax('../controller/CRUD.controller.php?action=listAll&model=Aprobador&crud=get'))
+        .then(function (result){
+            let datos = JSON.parse(result);
+            datos.forEach(element => {
+                if (element.tipo == type) {
+                    htmlGerente += `<option value="${element.id}" data-correoAprobador="${element.correo}">${element.nombre}</option>`;
+                }
+            });
+            $(`#moduloGestionar${reporte}`).html(html);
+            $(`#listAprobador${reporte}`).html(htmlGerente);
+            executeAction();
+        })
+}
+
+function getDataEmailAprove(reporte){
+
+    let arrayData = localStorage.getItem('arrayHEporGestionar');
+    let values = JSON.parse(arrayData);
+    values = values[$(`#index_${reporte}`).val()];
+
+    var correoAprobador = $(`#listAprobador${reporte}`).find(':selected').data('correoaprobador');
+    let correoEmpleado = values.correoEmpleado;
+    let empleado = values.empleado;
+
+    let data = {
+        'to': correoAprobador,
+        'from': correoEmpleado,
+        'empleado': empleado,
+        'idReporte': reporte
+    }
+
+    return data;
+}
+
+function getDataEmailReject(reporte){
+
+    let arrayData = localStorage.getItem('arrayHEporGestionar');
+    let values = JSON.parse(arrayData);
+    values = values[$(`#index_${reporte}`).val()];
+
+    var cc = $(`#listAprobador${reporte}`).find(':selected').data('correoaprobador');
+    var correoAprobador = values.correoJefe;
+    let correoEmpleado = values.correoEmpleado;
+    let empleado = values.aprobadorNombre;
+
+    let data = {
+        'to': correoEmpleado,
+        'from': correoAprobador,
+        'empleado': empleado,
+        'idReporte': reporte,
+        'cc': cc
+    }
+
+    return data;
+}
+
+function updateReport(object){
+    return new Promise((resolve, reject)=>{
+        $.ajax({
+            data: object,
+            url: '../controller/CRUD.controller.php?action=execute&model=Reporte&crud=updateEstado',
+            type: 'post',
+            success: function (result) {
+                console.log('Resultado Update ', result);
+
+                if (isNaN(parseInt(result))) {
+                    $.notify('No se actualizó el registro de Horas Extra', 'error');
+                    reject(false);
+                }
+
+                resolve(true);
+            }
+        });
+    })
+}
+
+async function rejectReport(reporte, estado){
+
+    let detailReject;
+
+    try {
+        detailReject = await getDetailsReject();
+        await executeComment(reporte, detailReject);
+    }catch (e){
+        console.log(e);
+        return false;
+    }
+
+    let object = {
+        'object': {
+            'reporte': reporte,
+            'estado': estado,
+        }
+    }
+
+    $.ajax({
+        data: object,
+        url: '../controller/CRUD.controller.php?action=execute&model=Reporte&crud=rejectEstado',
+        type: 'post',
+        success: function (result) {
+            if (isNaN(parseInt(result))) {
+                $.notify('No se actualizó el registro de Horas Extra', 'error');
+                return false;
+            }
+
+            $.notify('Registro rechazado con éxito', 'success');
+
+            let data = getDataEmailReject(reporte);
+
+            data.motivo = detailReject;
+
+            sendEmail(data, 'rechazoHE');
+
+            reloadPage();
+
+            return true;
+        }
     });
 }
 

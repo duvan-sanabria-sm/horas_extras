@@ -19,13 +19,14 @@ if (!isset($_SESSION["estadoAutentica"])) {
                     <th>Ver Mas</th>
                     <th>Num</th>
                     <th>Id</th>
-                    <th>Fecha Reporte</th>
+                    <th># Documento</th>
                     <th>Año</th>
                     <th>Mes</th>
                     <th>Colaborador</th>
                     <th>Aprobador</th>
                     <th>Rol Aprobador</th>
                     <th>Estado</th>
+                    <th>Ver detalle</th>
                 </tr>
                 </thead>
 				<tbody id="tableBody">

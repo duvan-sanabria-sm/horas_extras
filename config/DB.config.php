@@ -8,7 +8,7 @@ class DB {
 
         try {
             
-            $DNS  = "sqlsrv:server=localhost;database=HorasExtraSB";
+            $DNS  = "sqlsrv:server=localhost;database=HorasExtraSBv1";
             $this->conexion = new PDO($DNS, 'sa', 'We12345678*');
 
             return $this->conexion;

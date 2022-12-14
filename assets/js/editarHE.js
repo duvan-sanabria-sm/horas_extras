@@ -52,13 +52,13 @@ function addComment() {
         var creador = $('#usuarioLogin').html();
         var fecha = new Date();
         fecha = fecha.getFullYear() + '-' + (fecha.getMonth() + 1) + '-' + fecha.getDate();
-        var idHE = $('#idHE').data('id');
+        var idReporteHE = $('#idReporteHE').data('id');
 
         var object = {
             'object': {
                 'creadoPor': creador,
                 'fecha': fecha,
-                'idHE': idHE,
+                'idReporteHE': idReporteHE,
                 'cuerpo': comentario
             }
         }
@@ -98,7 +98,7 @@ function addComment() {
                     'to': correoAprobador,
                     'from': correoEmpleado,
                     'empleado': creador,
-                    'idHE': idHE,
+                    'idHE': idReporteHE,
                     'novedad': comentario
                 }
 

@@ -19,7 +19,7 @@ class TipoRecargo{
     public function insert($object){
         if (isset($object["titulo"])) {
             $this->titulo = $object["titulo"];
-            $this->sql = "INSERT INTO dbo.TipoRecargo (titulo) VALUES (:titulo)";
+            $this->sql = "INSERT INTO dbo.TiposRecargo (titulo) VALUES (:titulo)";
             
             $this->connection->beginTransaction();
             $this->result = $this->connection->prepare($this->sql);
@@ -38,7 +38,7 @@ class TipoRecargo{
     public function update(){}
 
     public function get(){
-        $this->sql = 'SELECT * FROM dbo.TipoRecargo';
+        $this->sql = 'SELECT * FROM dbo.TiposRecargo';
         $this->result = $this->connection->prepare($this->sql);
         $this->result->execute();
 

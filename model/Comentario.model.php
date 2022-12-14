@@ -10,7 +10,7 @@ class Comentario{
     private $id;
     private $fecha;
     private $cuerpo;
-    private $idHE;
+    private $idReporteHE;
     private $creadoPor;
 
     function __construct(){
@@ -20,18 +20,18 @@ class Comentario{
     }
 
     public function insert($object){
-        if (isset($object["idHE"])) {
+        if (isset($object["idReporteHE"])) {
             $this->fecha = $object["fecha"];
             $this->cuerpo = $object["cuerpo"];
-            $this->idHE = $object["idHE"];
+            $this->idReporteHE = $object["idReporteHE"];
             $this->creadoPor = $object["creadoPor"];
-            $this->sql = "INSERT INTO dbo.Comentario (fecha, cuerpo, id_horaExtra, creadoPor) VALUES (:fecha, :cuerpo, :id_horaExtra, :creadoPor)";
+            $this->sql = "INSERT INTO dbo.Comentarios (fecha, cuerpo, id_reporte, creadoPor) VALUES (:fecha, :cuerpo, :idReporteHE, :creadoPor)";
             
             $this->connection->beginTransaction();
             $this->result = $this->connection->prepare($this->sql);
             $this->result->bindParam(':fecha' , $this->fecha);
             $this->result->bindParam(':cuerpo' , $this->cuerpo);
-            $this->result->bindParam(':id_horaExtra' , $this->idHE);
+            $this->result->bindParam(':idReporteHE' , $this->idReporteHE);
             $this->result->bindParam(':creadoPor' , $this->creadoPor);
             $this->result->execute();
             $this->connection->commit();
@@ -47,12 +47,12 @@ class Comentario{
     public function update(){}
 
     public function getComments($object){
-        if ($object["id"]) {
-            $this->idHE = trim($object["id"]);
+        if ($object["id_reporteHE"]) {
+            $this->idReporteHE = trim($object["id_reporteHE"]);
 
-            $this->sql = 'SELECT * FROM dbo.Comentario WHERE id_horaExtra = :id';
+            $this->sql = 'SELECT * FROM dbo.Comentarios WHERE id_reporte = :id';
             $this->result = $this->connection->prepare($this->sql);
-            $this->result->bindParam(':id' , $this->idHE);
+            $this->result->bindParam(':id' , $this->idReporteHE);
             $this->result->execute();
     
             $json = json_encode($this->result->fetchAll(PDO::FETCH_OBJ));
