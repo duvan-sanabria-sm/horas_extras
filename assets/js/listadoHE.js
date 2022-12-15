@@ -180,6 +180,8 @@ function editar() {
 
                 $('#mes').val(fecha.getFullYear() + '-' + month);
 
+                $('#correoEmpleado').val(data.correoEmpleado);
+
                 fieldsEdit();
                 buttonAllowRows();
 

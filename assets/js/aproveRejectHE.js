@@ -323,7 +323,6 @@ async function sendComment(e, element) {
 
         e.preventDefault();
 
-        let row;
         let htmlId = element.id;
         let id = element.dataset.id;
 
@@ -345,25 +344,7 @@ async function sendComment(e, element) {
         comentario = comentario.replaceAll('script', '');
 
         element.style.display = "none";
-        await executeComment(id, comentario);
-
-                if (isCommentsVisibles == 'true'){
-
-                    row = `<tr>
-                        <td style="text-align: left; background-color: #d9d9d9; font-weight: bold;" id="comment-${result}">${creador} - ${fecha}</td>
-                        </tr>
-                        <tr style="border-bottom: 2px solid black;">
-                        <td>${comentario}</td>
-                        </tr>`;
-
-                    let hasComments = $('#bodyComments').data('content');
-
-                    if (hasComments == 'full') {
-                        $('#bodyComments').append(row);
-                    }else{
-                        $('#bodyComments').html(row);
-                    }
-                }
+        await executeComment(id, comentario, isCommentsVisibles);
 
                 $(`#comentario_${id}`).val('');
 
@@ -631,8 +612,9 @@ function getDetailsReject(){
     });
 }
 
-function executeComment(id, comentario){
+function executeComment(id, comentario, isCommentsVisibles = false){
     return new Promise((resolve, reject)=>{
+        let row;
         let creador = $('#usuarioLogin').html();
         let fecha = new Date();
         fecha = fecha.getFullYear() + '-' + (fecha.getMonth() + 1) + '-' + fecha.getDate();
@@ -655,6 +637,24 @@ function executeComment(id, comentario){
                 if (isNaN(parseInt(result))) {
                     $.notify('No se envió el comentario', 'error');
                     reject(false);
+                }
+
+                if (isCommentsVisibles){
+
+                    row = `<tr>
+                        <td style="text-align: left; background-color: #d9d9d9; font-weight: bold;" id="comment-${result}">${creador} - ${fecha}</td>
+                        </tr>
+                        <tr style="border-bottom: 2px solid black;">
+                        <td>${comentario}</td>
+                        </tr>`;
+
+                    let hasComments = $('#bodyComments').data('content');
+
+                    if (hasComments == 'full') {
+                        $('#bodyComments').append(row);
+                    }else{
+                        $('#bodyComments').html(row);
+                    }
                 }
 
                 resolve(true);

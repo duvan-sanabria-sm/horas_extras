@@ -88,11 +88,12 @@ class Reporte
         }
         $this->cc = $object["cc"];
         $this->cargo = $object["cargo"];
+        $this->correoEmpleado = $object["correoEmpleado"];
         $this->fechaInicio = $object["fechaInicio"];
         $this->fechaFin = $object["fechaFin"];
 
 
-        $this->sql = "UPDATE dbo.ReportesHE SET id_estado = :id_estado, id_ceco = :id_ceco, total = :total, id_aprobador = :id_aprobador, cc = :cc, cargo = :cargo, fechaInicio = :fechaInicio, fechaFin = :fechaFin WHERE id = :id";
+        $this->sql = "UPDATE dbo.ReportesHE SET id_estado = :id_estado, id_ceco = :id_ceco, total = :total, id_aprobador = :id_aprobador, cc = :cc, cargo = :cargo, fechaInicio = :fechaInicio, fechaFin = :fechaFin, correoEmpleado = :correoEmpleado WHERE id = :id";
         $this->result = $this->connection->prepare($this->sql);
 
         $this->result->bindParam(':id' , $this->id);
@@ -102,6 +103,7 @@ class Reporte
         $this->result->bindParam(':id_aprobador' , $this->id_aprobador);
         $this->result->bindParam(':cc' , $this->cc);
         $this->result->bindParam(':cargo' , $this->cargo);
+        $this->result->bindParam(':correoEmpleado' , $this->correoEmpleado);
         $this->result->bindParam(':fechaInicio' , $this->fechaInicio);
         $this->result->bindParam(':fechaFin' , $this->fechaFin);
 

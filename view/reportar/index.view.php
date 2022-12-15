@@ -33,6 +33,17 @@
                         <input type="month" name="mes" id="mes" class="mainValue" value="" required/>
                     </section>
 
+                    <section class="col-4 col-4-medium col-1-xsmall">
+                        <p></p>
+                    </section>
+                    <section class="col-4 col-4-medium col-10-xsmall">
+                        <h3>Correo <span class="error">*</span></h3>
+                        <input type="email" name="correoEmpleado" id="correoEmpleado" class="mainValue" value="<?php echo $_SESSION['email']?>" required/>
+                    </section>
+                    <section class="col-4 col-4-medium col-1-xsmall">
+                        <p></p>
+                    </section>
+
                     <section class="col-12">
                         <hr />
                     </section>

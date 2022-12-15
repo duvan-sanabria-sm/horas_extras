@@ -54,18 +54,18 @@ $(document).ready(function(e) {
         var bodyTable = '';
         var id;
         var datos = JSON.parse(result2[0]);
-                
+
         datos.forEach(element => {
             id = element.nombre.replaceAll(' ', '');
-        
+
             headerTable += `<th>${element.nombre}</th>`;
-        
+
             bodyTable += `<td style="width: 70px;"><input type="text" class="values valueHE" name="${id}" id="${id}" data-codigo="${element.codigo}" value="0" required pattern="^[0-9]{1,2}?(.[0,5]{0,1})?$" title="Solo numeros, debe terminar en un decimal .5 o en la unidad mas próxima"/></td>`
         });
-    
+
         //headerTable += '</tr>';
         //bodyTable += '</tr>';
-    
+
         $('#encTableHE').append(headerTable);
         $('#rowTableHE').append(bodyTable);
 
@@ -82,10 +82,10 @@ $(document).ready(function(e) {
 
             bodyTable += `<td style="width: 70px;"><input type="text" class="values valueRecargo" name="${id}" id="${id}" data-codigo="${element.codigo}" value="0" required pattern="^[0-9]{1,2}?(.[0,5]{0,1})?$" title="Solo numeros, debe terminar en un decimal .5 o en la unidad mas próxima"/></td>`
         });
-        
+
         //headerTable += '</tr>';
         //bodyTable += '</tr>';
-        
+
         $('#encTableHE').append(headerTable);
         $('#rowTableHE').append(bodyTable);
 
@@ -94,9 +94,9 @@ $(document).ready(function(e) {
         var htmlGerente;
         var datos = JSON.parse(result4[0]);
 
-        htmlJefe += `<option value="">-- Seleccione un Jefe --</option>`;
-        htmlGerente += `<option value="">-- Seleccione un Gerente --</option>`;
-        
+        htmlJefe += `<option value="0">-- Seleccione un Jefe --</option>`;
+        htmlGerente += `<option value="0">-- Seleccione un Gerente --</option>`;
+
         datos.forEach(element => {
             if (element.tipo == 'Gerente') {
                 htmlGerente += `<option value="${element.id}" data-correoAprobador="${element.correo}">${element.nombre}</option>`;
@@ -104,7 +104,7 @@ $(document).ready(function(e) {
                 htmlJefe += `<option value="${element.id}" data-correoAprobador="${element.correo}">${element.nombre}</option>`;
             }
         });
-    
+
         $('#listJefe').html(htmlJefe);
         $('#listGerente').html(htmlGerente);
 
@@ -115,7 +115,11 @@ $(document).ready(function(e) {
         focusValuesHE();
         sumValuesHE();
         sumValuesRecargo();
-        validateMainValues();
+
+        let dataType = $('#sendData').data('type');
+        if (dataType !== 'update'){
+            validateMainValues();
+        }
 
         onLoadEditHE();
     });
@@ -156,7 +160,11 @@ function setDataAprobador() {
         var aprobador = $(this).find(':selected').val();
         localStorage.setItem('correoAprobador', correoAprobador);
         localStorage.setItem('aprobador', aprobador);
-        localStorage.setItem('TipoAprobador', 'Jefe');
+        if (aprobador !== '0'){
+            localStorage.setItem('TipoAprobador', 'Jefe');
+        }else{
+            localStorage.setItem('TipoAprobador', '');
+        }
         $('#errorRadio').css({display: 'none'});
     });
 
@@ -165,7 +173,11 @@ function setDataAprobador() {
         var aprobador = $(this).find(':selected').val();
         localStorage.setItem('correoAprobador', correoAprobador);
         localStorage.setItem('aprobador', aprobador);
-        localStorage.setItem('TipoAprobador', 'Gerente');
+        if (aprobador !== '0'){
+            localStorage.setItem('TipoAprobador', 'Gerente');
+        }else{
+            localStorage.setItem('TipoAprobador', '');
+        }
         $('#errorRadio').css({display: 'none'});
     })
 }
@@ -387,7 +399,7 @@ function sendData() {
         var ceco = $('#ceco').children("option:selected").val();
         var total = $('#total').html();
         var empleado = $('#cc').data('empleado');
-        var correoEmpleado = $('#cc').data('correoempleado');
+        var correoEmpleado = $('#correoEmpleado').val();
         var cc = $('#cc').val();
         var cargo = $('#cargo').val();
         //***************
@@ -496,6 +508,12 @@ function sendData() {
 
                         $('#butonSend').css({display: 'none'});
                         $('#loadSpinner').css({display: 'inline'});
+
+                        localStorage.setItem('correoAprobador', '');
+                        localStorage.setItem('aprobador', '');
+                        localStorage.setItem('TipoAprobador', '');
+
+                        console.log('Correo Aprobador ', correoAprobador);
                     },
                     success: async function(result){
 
@@ -551,7 +569,7 @@ function sendData() {
 
                                 console.log('Email result ', result);
 
-                                if (result == 'Email result  Message has been sent1') {
+                                if (result == 'Message has been sent1') {
                                     $.notify('Notificación enviada', 'success');
                                 }else{
                                     $.notify('No se envió la notificación', 'error');
@@ -599,6 +617,10 @@ function sendData() {
                     beforeSend: function () {
                         $('#butonSend').css({display: 'none'});
                         $('#loadSpinner').css({display: 'inline'});
+
+                        localStorage.setItem('correoAprobador', '');
+                        localStorage.setItem('aprobador', '');
+                        localStorage.setItem('TipoAprobador', '');
                     },
                     success: async function(result){
 
@@ -688,7 +710,7 @@ function getFechas(){
     }else if (parseInt(mes[1]) >= 9 && parseInt(mes[1]) <= 11) {
         mes = mes[0] + '-' + (parseInt(mes[1]) + 1);
     }else if (parseInt(mes[1]) == 12) {
-        mes = mes[0] + '-' + '01';
+        mes = (parseInt(mes[0]) + 1) + '-' + '01';
     }
 
     fecha = new Date();
@@ -878,6 +900,8 @@ function colspanButton(lenghtCol){
 function limitDate() {
         let fechas = getFechas();
 
+        console.log(fechas);
+
         let activitiesDate = document.getElementsByClassName('fechasActividades');
 
         if (fechas == undefined){
@@ -917,8 +941,10 @@ async function deleteRow(e, element, isDelete){
     }
 
     if (isDelete){
-        let result =  await executeAction(object, 1);
-        if (!result){
+        try{
+            await executeAction(object, 1);
+        }catch (e) {
+            console.log(e);
             return;
         }
     }
@@ -1092,21 +1118,24 @@ function executeAction(object, valAction) {
                 break;
         }
 
-        let option = confirm(title);
+        swal(title, {
+            buttons: ["No!", "Si!"],
+        }).then(async (val)=>{
+            if (val){
+                try {
+                    await action(object, valAction);
+                    $.notify(title_2);
+                    resolve(true);
+                }catch (e) {
+                    console.log('Error al aprobar ', e);
+                    reject(false);
+                }
 
-        if (!option){
-            $.notify('Se ha cancelado la transacción.', 'info');
-            resolve(option);
-            return;
-        }
-
-        result = await action(object, valAction);
-
-        if (result){
-            $.notify(title_2);
-        }
-
-        resolve(result);
+            }else{
+                $.notify('Se ha cancelado la transacción.', 'info');
+                reject(false);
+            }
+        });
 
     });
 }

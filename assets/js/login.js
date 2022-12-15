@@ -21,8 +21,8 @@ function send() {
             success: function(result){
                 
                 if (result !== '1') {
-                    $.notify("El servidor no esta disponible!", 'error');
-                    console.log('No se pudo conectar el servidor');
+                    $.notify("Error al iniciar sesión!", 'error');
+                    console.log('No se pudo conectar el servidor o credenciales incorrectas');
                     return false;
                 }
 

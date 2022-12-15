@@ -22,7 +22,7 @@
             </span>
 		    <div class="content">
 		    	<header>
-		    		<h2 style="color: white;">Ingreso Reporte de Horas Extra</h2>
+		    		<h2 style="color: white;">Ingreso - Reporte de Horas Extra</h2>
 		    		<p>Bienvenido!</p>
 		    	</header>
 		    	<p style="color: white;"> Digite las credenciales de su equipo</p>
