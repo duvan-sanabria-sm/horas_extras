@@ -28,12 +28,14 @@ $(document).ready(function(e) {
             cargo: 'required',
             mes: 'required',
             novedad: 'required',
+            correoEmpleado: 'required'
         },
         messages: {
             cc: 'Ingrese un numero de cedula valido con al menos 10 digitos.',
             cargo: 'Ingrese un valor para cargo.',
             mes: 'Seleccione el mes a reportar.',
             novedad: 'Ingrese la causa de la novedad.',
+            correoEmpleado: 'Ingrese un correo valido',
         }
     });
 

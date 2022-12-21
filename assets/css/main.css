@@ -206,6 +206,10 @@ th.sorting {
 	 color: #5475c7;
  }
 
+ .tableAdmin, .tableAdmin th {
+	 color: white !important;
+ }
+
 
 /* Basic */
 

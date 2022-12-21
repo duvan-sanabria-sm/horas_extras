@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION["estadoAutentica"])) {
-    header('Location:http://localhost/HorasExtra/');
+    header('Location:http://gestionhe.servimeters.net:86/');
 }
 ?>
 <section id="four" class="wrapper style1 special fade-up">

@@ -17,25 +17,71 @@ class CentroCosto{
     }
 
     public function insert($object){
-        if (isset($object["titulo"])) {
-            $this->titulo = $object["titulo"];
-            $this->sql = "INSERT INTO dbo.CentrosCosto (titulo) VALUES (:titulo)";
-            
-            $this->connection->beginTransaction();
-            $this->result = $this->connection->prepare($this->sql);
-            $this->result->bindParam(':titulo' , $this->titulo);
-            $this->result->execute();
-            $this->connection->commit();
-            
-            echo $this->connection->lastInsertId();
+        if (!isset($object["titulo"])) {
+            return false;
         }
-        
-        return false;
+
+        try {
+            if (isset($object["titulo"])) {
+                $this->titulo = $object["titulo"];
+                $this->sql = "INSERT INTO dbo.CentrosCosto (titulo) VALUES (:titulo)";
+
+                $this->connection->beginTransaction();
+                $this->result = $this->connection->prepare($this->sql);
+                $this->result->bindParam(':titulo' , $this->titulo);
+                $this->result->execute();
+                $this->connection->commit();
+
+                echo $this->connection->lastInsertId();
+            }
+        }catch (\Throwable $th) {
+            return false;
+            throw $th;
+        }
     }
 
-    public function delete(){}
+    public function delete($object){
+        if (!isset($object["id"])) {
+            return false;
+        }
 
-    public function update(){}
+        try {
+            $this->id = $object["id"];
+            $this->sql = "DELETE FROM dbo.CentrosCosto WHERE id = :id";
+            $this->result = $this->connection->prepare($this->sql);
+            $this->result->bindParam(':id' , $this->id);
+            $this->result->execute();
+
+            return true;
+        }catch (\Throwable $th) {
+            return false;
+            throw $th;
+        }
+
+    }
+
+    public function update($object){
+        if (!isset($object["id"])) {
+            return false;
+        }
+
+        try {
+
+            $this->id = $object["id"];
+            $this->titulo = $object["titulo"];
+            $this->sql = "UPDATE dbo.CentrosCosto SET titulo = :titulo WHERE id = :id";
+            $this->result = $this->connection->prepare($this->sql);
+
+            $this->result->bindParam(':id' , $this->id);
+            $this->result->bindParam(':titulo' , $this->titulo);
+            $this->result->execute();
+
+            return true;
+        } catch (\Throwable $th) {
+            return false;
+            throw $th;
+        }
+    }
 
     public function get(){
         $this->sql = 'SELECT * FROM dbo.CentrosCosto';

@@ -1,5 +1,10 @@
 <?php
 
+session_start();
+if (!isset($_SESSION["estadoAutentica"])) {
+    header('Location:http://gestionhe.servimeters.net:86/');
+}
+
 if (!isset($_POST['id'])) {
     echo 'No hay datos';
 }else{

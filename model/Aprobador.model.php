@@ -11,7 +11,8 @@ class Aprobador{
     private $nombre;
     private $correo;
     private $tipo;
-    private $gestion;
+    private $gestiona;
+    private $esAdmin;
 
     function __construct(){
         require_once "../config/DB.config.php";
@@ -20,29 +21,66 @@ class Aprobador{
     }
 
     public function insert($object){
-        if (isset($object["titulo"])) {
+        if (!isset($object["nombre"])) {
+            return false;
+        }
             $this->nombre = $object["nombre"];
             $this->correo = $object["correo"];
             $this->tipo = $object["tipo"];
-            $this->sql = "INSERT INTO dbo.Aprobadores (nombre, correo, tipo) VALUES (:nombre, :correo, :tipo)";
+            $this->gestiona = $object["gestiona"];
+            $this->esAdmin = $object["esAdmin"];
+            $this->sql = "INSERT INTO dbo.Aprobadores (nombre, correo, tipo, gestiona, esAdmin) VALUES (:nombre, :correo, :tipo, :gestiona, :esAdmin)";
             
             $this->connection->beginTransaction();
             $this->result = $this->connection->prepare($this->sql);
             $this->result->bindParam(':nombre' , $this->nombre);
             $this->result->bindParam(':correo' , $this->correo);
             $this->result->bindParam(':tipo' , $this->tipo);
+            $this->result->bindParam(':gestiona' , $this->gestiona);
+            $this->result->bindParam(':esAdmin' , $this->esAdmin);
             $this->result->execute();
             $this->connection->commit();
             
             echo $this->connection->lastInsertId();
-        }
+
         
         return false;
     }
 
     public function delete(){}
 
-    public function update(){}
+    public function update($object){
+        if (!isset($object["id"])) {
+            return false;
+        }
+
+        try {
+
+            $this->id = $object["id"];
+            $this->nombre = $object["nombre"];
+            $this->correo = $object["correo"];
+            $this->tipo = $object["tipo"];
+            $this->gestiona = $object["gestiona"];
+            $this->esAdmin = $object["esAdmin"];
+
+            $this->sql = "UPDATE dbo.Aprobadores SET nombre = :nombre, correo = :correo, tipo = :tipo, gestiona = :gestiona, esAdmin = :esAdmin WHERE id = :id";
+            $this->result = $this->connection->prepare($this->sql);
+
+            $this->result->bindParam(':id' , $this->id);
+            $this->result->bindParam(':nombre' , $this->nombre);
+            $this->result->bindParam(':correo' , $this->correo);
+            $this->result->bindParam(':tipo' , $this->tipo);
+            $this->result->bindParam(':gestiona' , $this->gestiona);
+            $this->result->bindParam(':esAdmin' , $this->esAdmin);
+            $this->result->execute();
+
+            return true;
+        } catch (\Throwable $th) {
+            return false;
+            throw $th;
+        }
+
+    }
 
     public function get(){
         $this->sql = 'SELECT * FROM dbo.Aprobadores';
@@ -67,6 +105,7 @@ class Aprobador{
                 $_SESSION["rol"] = $user[0]->tipo;
                 $_SESSION["gestion"] = $user[0]->gestiona;
                 $_SESSION["idAprobador"] = $user[0]->id;
+                $_SESSION["isAdmin"] = $user[0]->esAdmin;
                 echo $user[0]->tipo;
             }else{
                 echo false;
@@ -84,11 +123,11 @@ class Aprobador{
                 return false;
             }
 
-            $this->gestion = $object["gestion"];
+            $this->gestiona = $object["gestion"];
 
             $this->sql = 'SELECT * FROM dbo.Aprobadores WHERE gestiona = :gestion';
             $this->result = $this->connection->prepare($this->sql);
-            $this->result->bindParam(':gestion', $this->gestion);
+            $this->result->bindParam(':gestion', $this->gestiona);
             $this->result->execute();
 
             return json_encode($this->result->fetchAll(PDO::FETCH_OBJ));

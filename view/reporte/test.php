@@ -1,5 +1,5 @@
 <?php
-
+/**
 require_once('../../controller/Report.controller.php');
 $arrayReport = executeReport('2022-06-01', '2022-06-30', 'detalleReporte');
 
@@ -8,7 +8,7 @@ foreach ($arrayReport as $items){
 }
 
 
-/**
+
 $data = $_POST['data'];
 $recargos = json_decode($data['valuesRecargo']);
 
@@ -22,3 +22,7 @@ foreach ($recargos as $items) {
 echo json_encode($ids);
 **/
 
+$data = $_POST['object'];
+$value = $data['id'];
+$value2 = $data['titulo'];
+echo $value2;

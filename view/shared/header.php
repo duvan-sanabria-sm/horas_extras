@@ -6,22 +6,22 @@
                     <li><a href="" class="menuItem" id="reportar">Reportar Horas Extra</a></li>
 					<li><a href="" class="menuItem" id="estado">Mis Horas Extra</a></li>
                     <?php 
-                        if (isset($_SESSION["rol"] )) {
-                            if (strcasecmp($_SESSION["rol"], 'Jefe') == 0 || strcasecmp($_SESSION["rol"], 'Gerente') == 0 || strcasecmp($_SESSION["rol"], 'Admin') == 0) {
+                        if (isset($_SESSION["rol"]) || isset($_SESSION["isAdmin"])) {
+                            if (strcasecmp($_SESSION["rol"], 'Jefe') == 0 || strcasecmp($_SESSION["rol"], 'Gerente') == 0 || strcasecmp($_SESSION["isAdmin"], 'Si') == 0) {
                             
                     ?>
 					<li><a href="" class="menuItem" id="gestionar" data-aprobador="<?php echo $_SESSION['idAprobador']?>">Gestionar Horas Extra</a></li>
                     <?php 
                             }
-                            if (strcasecmp($_SESSION["rol"], 'Admin') == 0) {
+                            if (strcasecmp($_SESSION["isAdmin"], 'Si') == 0) {
                     ?>
 
                     <li>
                         <a href="#" id="admin">Administrar</a>
 						<ul>
-                            <li><a href="left-sidebar.html">Centros de Costo</a></li>
-							<li><a href="right-sidebar.html">Estados</a></li>
-							<li><a href="no-sidebar.html">Aprobadores</a></li>
+                            <li><a href="#" onclick="adminCECO(event)">Centros de Costo</a></li>
+							<li><a href="#" onclick="adminAprobadores(event)">Aprobadores</a></li>
+							<li><a href="#">Tipos de Recargo</a></li>
 							<li><a href="#">Tipos de HE</a></li>
 						</ul>
 					</li>
@@ -30,16 +30,16 @@
                             }
                         }
 
-                        if (isset($_SESSION["gestion"]) || (isset($_SESSION["rol"]) && strcasecmp($_SESSION["rol"], 'Admin') == 0)) {
+                        if (isset($_SESSION["gestion"]) || (isset($_SESSION["isAdmin"]) && strcasecmp($_SESSION["isAdmin"], 'Si') == 0)) {
                             
-                            if (strcasecmp($_SESSION["gestion"], 'RH') == 0 || strcasecmp($_SESSION["rol"], 'Admin') == 0) {
+                            if (strcasecmp($_SESSION["gestion"], 'RH') == 0 || strcasecmp($_SESSION["isAdmin"], 'Si') == 0) {
                     ?>
 
                     <li><a href="#" class="menuItem" id="gestionarRH">Gestion RH</a></li>
 
                     <?php 
                             }
-                            if (strcasecmp($_SESSION["gestion"], 'Contable') == 0 || strcasecmp($_SESSION["rol"], 'Admin') == 0) {
+                            if (strcasecmp($_SESSION["gestion"], 'Contable') == 0 || strcasecmp($_SESSION["isAdmin"], 'Si') == 0) {
                     ?>
 
                     <li><a href="#" class="menuItem" id="mainContable">Gestion Contable</a>

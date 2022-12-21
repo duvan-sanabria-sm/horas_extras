@@ -6,6 +6,8 @@ $(document).ready(function(e) {
     estado();
     gestionar();
     gestionRH();
+    adminCECO();
+    adminAprobadores();
 });
 
 function reportar(){
@@ -149,6 +151,46 @@ function reporte(e){
             $('#links').append(script);
             gestionContable.addClass('menuSelect');
             gestionContable.css('pointer-events', 'auto');
+            $('#result').html(result);
+            $(this).prop('disabled', false);
+        })
+}
+
+function adminCECO(e) {
+    e.preventDefault();
+    $(this).prop('disabled', true);
+
+    var adminCeco = $('#admin');
+    adminCeco.css('pointer-events', 'none');
+    var script = "<script src=\"../assets/js/admin/cecoAdmin.js\"></script>";
+
+    $.when($.ajax('./admin/centroCosto.view.php'))
+        .then(function(result) {
+
+            //Cargar HTML
+            $('#links').append(script);
+            adminCeco.addClass('menuSelect');
+            adminCeco.css('pointer-events', 'auto');
+            $('#result').html(result);
+            $(this).prop('disabled', false);
+        })
+}
+
+function adminAprobadores(e) {
+    e.preventDefault();
+    $(this).prop('disabled', true);
+
+    var adminCeco = $('#admin');
+    adminCeco.css('pointer-events', 'none');
+    var script = "<script src=\"../assets/js/admin/aprobadoresAdmin.js\"></script>";
+
+    $.when($.ajax('./admin/Aprobadores.view.php'))
+        .then(function(result) {
+
+            //Cargar HTML
+            $('#links').append(script);
+            adminCeco.addClass('menuSelect');
+            adminCeco.css('pointer-events', 'auto');
             $('#result').html(result);
             $(this).prop('disabled', false);
         })

@@ -115,7 +115,7 @@ function editar() {
             } 
         }
         
-        $.when($.ajax({data: data, url: './estado/editarHE.view.php', type: 'post'}), $.ajax('./reportar/index.view.php'), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=getCantHorasExtraByReport', type: 'post',}), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=Recargo&crud=getCantRecargosByReport', type: 'post',}), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=Comentario&crud=getComments', type: 'post',}), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=getHorasExtraByReport', type: 'post',}))
+        $.when($.ajax({data: data, url: './estado/editarHE.view.php', type: 'post'}), $.ajax('./reportar/index.view.php'), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=getCantHorasExtraByReport', type: 'post'}), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=Recargo&crud=getCantRecargosByReport', type: 'post'}), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=Comentario&crud=getComments', type: 'post'}), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=getHorasExtraByReport', type: 'post'}))
         .then(function (result1, result2, result3, result4, result5, result6) {
             if (data.id_estado !== '1002'){
                 $('#links').append(script_two, style);

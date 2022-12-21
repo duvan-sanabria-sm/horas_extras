@@ -16,7 +16,7 @@ switch ($_GET['email']) {
         $Subject = 'Solicitud revision de Horas Extra para ' . $empleado;
         $body = 'Buen dia, Tiene una solicitud de Horas Extra con el número ' . $reporteHE . ' pendiente por revisar. ' . '. Este mensaje ha sido generado automáticamente.';
 
-        $result = $email->sendEmail('soporte@servimeters.net', 'bautistawilliam961@gmail.com', 'bautistawilliam961@gmail.com', $Subject, $body);
+        $result = $email->sendEmail('soporte@servimeters.net', $to , $from, $Subject, $body);
         echo $result;
         exit();
         break;
@@ -30,7 +30,7 @@ switch ($_GET['email']) {
         $Subject = 'Actualizacion Horas Extra por ' . $empleado;
         $body = 'Buen dia, Las Horas Extra con el número ' . $reporteHE . ' han sido actualizadas y estan pendiente por revisar. ' . '. Este mensaje ha sido generado automáticamente.';
 
-        $result = $email->sendEmail('soporte@servimeters.net', 'bautistawilliam961@gmail.com', 'bautistawilliam961@gmail.com', $Subject, $body);
+        $result = $email->sendEmail('soporte@servimeters.net', $to, $from, $Subject, $body);
         echo $result;
         exit();
         break;
@@ -43,9 +43,9 @@ switch ($_GET['email']) {
         $novedad = $_POST['novedad'];
 
         $Subject = 'Novedad de Horas Extra por ' . $empleado;
-        $body = 'Buen dia, Tiene una novedad sobre las Horas Extra con el número ' . $reporteHE . '. Novedad: ' . $novedad . ' Este mensaje ha sido generado automáticamente. Pruebas Sm.';
+        $body = 'Buen dia, Tiene una novedad sobre las Horas Extra con el número ' . $reporteHE . '. Novedad: ' . $novedad . ' Este mensaje ha sido generado automáticamente.';
 
-        $result = $email->sendEmail('soporte@servimeters.net', 'bautistawilliam961@gmail.com', 'bautistawilliam961@gmail.com',  $Subject, $body);
+        $result = $email->sendEmail('soporte@servimeters.net', $to, $from,  $Subject, $body);
         echo $result;
         exit();
 
@@ -56,6 +56,8 @@ switch ($_GET['email']) {
 
         if (isset($_POST['cc'])){
             $cc = $_POST['cc'];
+        }else{
+            $cc = $from;
         }
 
         $empleado = $_POST['empleado'];
@@ -63,9 +65,9 @@ switch ($_GET['email']) {
         $motivo = $_POST['motivo'];
 
         $Subject = 'Rechazo de Horas Extra por ' . $empleado;
-        $body = 'Buen dia, Las Horas Extra con el número ' . $reporteHE . ' han sido rechazados. '. $motivo .'. Este mensaje ha sido generado automáticamente. Pruebas Sm.';
+        $body = 'Buen dia, Las Horas Extra con el número ' . $reporteHE . ' han sido rechazados. '. $motivo .'. Este mensaje ha sido generado automáticamente.';
 
-        $result = $email->sendEmail('soporte@servimeters.net', 'bautistawilliam961@gmail.com', 'bautistawilliam961@gmail.com', $Subject, $body);
+        $result = $email->sendEmail('soporte@servimeters.net', $to, $cc, $Subject, $body);
         echo $result;
         exit();
 
@@ -78,9 +80,9 @@ switch ($_GET['email']) {
         $reporteHE = $_POST['idReporte'];
 
         $Subject = 'Aprobación de Horas Extra para ' . $empleado;
-        $body = 'Buen dia, Las Horas Extra con el número ' . $reporteHE . ' han sido aprobadas. Este mensaje ha sido generado automáticamente. Pruebas Sm.';
+        $body = 'Buen dia, Las Horas Extra con el número ' . $reporteHE . ' han sido aprobadas. Este mensaje ha sido generado automáticamente.';
 
-        $result = $email->sendEmail('soporte@servimeters.net', $to, 'bautistawilliam961@gmail.com', $Subject, $body);
+        $result = $email->sendEmail('soporte@servimeters.net', $to, $from, $Subject, $body);
         echo $result;
         exit();
         break;
