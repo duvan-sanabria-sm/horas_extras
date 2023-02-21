@@ -55,6 +55,27 @@ body {
 	-webkit-text-size-adjust: none;
 }
 
+* {
+	scrollbar-width: thin;
+	scrollbar-color: #1d1e26 white;
+  }
+  
+  /* Works on Chrome, Edge, and Safari */
+  *::-webkit-scrollbar {
+	width: 12px;
+  }
+  
+  *::-webkit-scrollbar-track {
+	background: white;
+	border-radius: 10px;
+  }
+  
+  *::-webkit-scrollbar-thumb {
+	background-color: #1d1e26;
+	border-radius: 20px;
+	border: 3px solid white;
+  }
+
 mark {
 	background-color: transparent;
 	color: inherit;
@@ -2898,10 +2919,6 @@ th.sorting {
 
 /* Table */
 
-	.table-wrapper {
-		-webkit-overflow-scrolling: touch;
-		overflow-x: auto;
-	}
 
 	table {
 		margin: 0 0 2em 0;
@@ -2962,6 +2979,30 @@ th.sorting {
 
 			table.alt tfoot {
 				border-top: 0;
+			}
+
+			.table-fixed-header thead {
+				position: sticky;
+				top: 0;
+				background-color: white;
+				z-index: 1;
+				box-shadow: 0px 5px 19px -4px rgba(0,0,0,0.84);
+			}
+		
+			.table-wrapper {
+				-webkit-overflow-scrolling: touch;
+				overflow-x: auto;
+			}
+
+			.table-wrapper-he {
+				height: 600px;
+				overflow: auto;
+				/* -webkit-overflow-scrolling: touch;
+				overflow-x: auto; */
+			}
+
+			#summaries{
+				border: 0.5px solid;
 			}
 
 /* Button */

@@ -31,7 +31,7 @@ $(document).ready(function(e) {
             correoEmpleado: 'required'
         },
         messages: {
-            cc: 'Ingrese un numero de cedula valido con al menos 10 digitos.',
+            cc: 'La CC no debe tener puntuación, debe contener al menos 10 digitos.',
             cargo: 'Ingrese un valor para cargo.',
             mes: 'Seleccione el mes a reportar.',
             novedad: 'Ingrese la causa de la novedad.',
@@ -51,6 +51,9 @@ $(document).ready(function(e) {
 
         $('#ceco').html(html);
 
+        //Celdas de Resumen
+        var summaryCells = '';
+
         // Cargar Tabla HE
         var headerTable = '';
         var bodyTable = '';
@@ -62,7 +65,9 @@ $(document).ready(function(e) {
 
             headerTable += `<th>${element.nombre}</th>`;
 
-            bodyTable += `<td style="width: 70px;"><input type="text" class="values valueHE" name="${id}" id="${id}" data-codigo="${element.codigo}" value="0" required pattern="^[0-9]{1,2}?(.[0,5]{0,1})?$" title="Solo numeros, debe terminar en un decimal .5 o en la unidad mas próxima"/></td>`
+            bodyTable += `<td style="width: 70px;"><input type="text" class="values valueHE" name="${id}" id="${id}" data-codigo="${element.codigo}" value="0" required pattern="^[0-9]{1,2}?(.[0,5]{0,1})?$" title="Solo numeros, para decimales debe terminar en .5"/></td>`
+            
+            summaryCells += `<td id="summary_${id}" class="summariesFields">0</td>`;
         });
 
         //headerTable += '</tr>';
@@ -82,14 +87,18 @@ $(document).ready(function(e) {
 
             headerTable += `<th>${element.nombre}</th>`;
 
-            bodyTable += `<td style="width: 70px;"><input type="text" class="values valueRecargo" name="${id}" id="${id}" data-codigo="${element.codigo}" value="0" required pattern="^[0-9]{1,2}?(.[0,5]{0,1})?$" title="Solo numeros, debe terminar en un decimal .5 o en la unidad mas próxima"/></td>`
+            bodyTable += `<td style="width: 70px;"><input type="text" class="values valueRecargo" name="${id}" id="${id}" data-codigo="${element.codigo}" value="0" required pattern="^[0-9]{1,2}?(.[0,5]{0,1})?$" title="Solo numeros, para decimales debe terminar en .5"/></td>`
+            summaryCells += `<td id="summary_${id}" class="summariesFields">0</td>`;
         });
 
         //headerTable += '</tr>';
         //bodyTable += '</tr>';
 
+        headerTable += `<th>Acción</th>`;
+
         $('#encTableHE').append(headerTable);
         $('#rowTableHE').append(bodyTable);
+        $('#summaries').append(summaryCells);
 
         //Cargar listado Jefes/Gerentes
         var htmlJefe;
@@ -117,6 +126,8 @@ $(document).ready(function(e) {
         focusValuesHE();
         sumValuesHE();
         sumValuesRecargo();
+
+        summaryValues();
 
         let dataType = $('#sendData').data('type');
         if (dataType !== 'update'){
@@ -540,7 +551,7 @@ function sendData() {
                         $('#total').html(0);
                         $('#calcRec').html(0);
                         $('#calcHE').html(0);
-                        $('#calcDescuentos').html(0);
+                        clearSummaryFields();
 
                         $('#listGerente').find('option:first-child').prop('selected', true);
                         $('#listJefe').find('option:first-child').prop('selected', true);
@@ -719,12 +730,27 @@ function getFechas(){
     fechas[0] = fecha.getFullYear() + '-' + (fecha.getMonth() + 1) + '-' + fecha.getDate();
     fecha = new Date(mes);
 
-    if (fecha.getMonth() <= 8){
-        fechas[1] = fecha.getFullYear() + '-0' + (fecha.getMonth() + 1)  + '-' + fecha.getDate();
-        fechas[2] = fecha.getFullYear() + '-0' + (fecha.getMonth() + 1) + '-01';
+    var month;
+    var year;
+    if (fecha.getMonth() <= 9){
+        if (fecha.getMonth() == 0) {
+            month = '12';
+            year = (fecha.getFullYear() - 1);
+        }else{
+            month = '0' + fecha.getMonth();
+            year = fecha.getFullYear();
+        }
     }else{
-        fechas[1] = fecha.getFullYear() + '-' + (fecha.getMonth() + 1)  + '-' + fecha.getDate();
-        fechas[2] = fecha.getFullYear() + '-' + (fecha.getMonth() + 1) + '-01';
+        month = fecha.getMonth();
+        year = fecha.getFullYear();
+    }
+
+    fechas[2] = year + '-' + month + '-26';
+
+    if (fecha.getMonth() <= 8){
+        fechas[1] = fecha.getFullYear() + '-0' + (fecha.getMonth() + 1)  + '-25';
+    }else{
+        fechas[1] = fecha.getFullYear() + '-' + (fecha.getMonth() + 1)  + '-25';
     }
 
     return fechas;
@@ -902,8 +928,6 @@ function colspanButton(lenghtCol){
 function limitDate() {
         let fechas = getFechas();
 
-        console.log(fechas);
-
         let activitiesDate = document.getElementsByClassName('fechasActividades');
 
         if (fechas == undefined){
@@ -911,8 +935,8 @@ function limitDate() {
         }
 
         for (let i = 0; i < activitiesDate.length; i++) {
-            activitiesDate[i].setAttribute('min', fechas[2]);
             activitiesDate[i].setAttribute('max', fechas[1]);
+            activitiesDate[i].setAttribute('min', fechas[2]);
         }
 }
 
@@ -923,12 +947,16 @@ function addRow() {
         let row = $('#rowTableHE').html();
         id++;
 
-        $('#bodyTableHE').append(`<tr id="row_${id}" class="rowTable">  ${row}  <td align="left"><span style="color: tomato;" data-id="${id}" class="deleteRow icon solid fa-window-close fi" onclick="deleteRow(event, this, false)"></span></td> </tr>`);
+        $('#bodyTableHE').append(`<tr id="row_${id}" class="rowTable">  ${row}  <td align="left" style="width: 30px;"><span style="color: tomato;" data-id="${id}" class="deleteRow icon solid fa-window-close fi" onclick="deleteRow(event, this, false)"></span></td> </tr>`);
+
+        const scroll=document.querySelector(".table-wrapper-he");
+        scroll.scrollTop=scroll.scrollHeight;
 
         focusValuesHE();
         sumValuesHE();
         sumValuesRecargo();
         sumDescuento();
+        summaryValues();
     });
 }
 
@@ -969,10 +997,22 @@ async function deleteRow(e, element, isDelete){
 
             if (inputs[i].classList.contains('valueHE')){
                 restarHE += parseFloat(inputs[i].value);
+
+                var idField = inputs[i].id;
+                var summary = $(`#summary_${idField}`).html();
+                summary -= parseFloat(inputs[i].value);
+                console.log(summary);
+                $(`#summary_${idField}`).html(summary);
             }
 
             if (inputs[i].classList.contains('valueRecargo')){
                 restarRecargos += parseFloat(inputs[i].value);
+
+                var idField = inputs[i].id;
+                var summary = $(`#summary_${idField}`).html();
+                summary -= parseFloat(inputs[i].value);
+                console.log(summary);
+                $(`#summary_${idField}`).html(summary);
             }
         }
 
@@ -1074,7 +1114,7 @@ function restValues(valor, idTotal) {
     totalVal = parseFloat(totalVal);
 
     totalVal -= valor;
-    console.log(totalVal);
+    
     $(`#${idTotal}`).html(totalVal);
     total();
 }
@@ -1260,4 +1300,52 @@ function onLoadEditHE(){
     if (htmlEdit.length > 0){
         limitDate();
     }
+}
+
+function summaryValues() {
+
+    var suma;
+    var idField;
+    var valueField;
+    var valueSummary;
+
+    $('.values').on('focus', function(e) {
+
+        idField = $(this).attr('id');
+
+        if (!idField) {
+            return;
+        }
+
+        suma = $(`#summary_${idField}`).html();
+        suma = parseFloat(suma);
+
+        valueField = $(this).val();
+        
+        if (valueField == '') {
+            valueField = 0;
+        }
+
+        if (!isNaN(valueField)) {
+
+            if (valueField !== '0.0' || valueField !== 0 || valueField !== '0') {
+                
+                suma -= parseFloat(valueField);
+            }
+        }
+        
+    });
+
+    $('.values').on('blur', function(e) {
+
+        valueField = $(this).val();
+        suma += parseFloat(valueField);
+
+        $(`#summary_${idField}`).html(suma);
+
+    })
+}
+
+function clearSummaryFields() {
+    $('.summariesFields').html(0);
 }

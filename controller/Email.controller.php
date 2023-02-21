@@ -16,7 +16,7 @@ switch ($_GET['email']) {
         $Subject = 'Solicitud revision de Horas Extra para ' . $empleado;
         $body = 'Buen dia, Tiene una solicitud de Horas Extra con el número ' . $reporteHE . ' pendiente por revisar. ' . '. Este mensaje ha sido generado automáticamente.';
 
-        $result = $email->sendEmail('soporte@servimeters.net', $to , $from, $Subject, $body);
+        $result = $email->sendEmail('soporte@servimeters.net', 'bautistawilliam961@gmail.com' , $from, $Subject, $body);
         echo $result;
         exit();
         break;

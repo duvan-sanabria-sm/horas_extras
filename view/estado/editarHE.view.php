@@ -2,7 +2,7 @@
 
 session_start();
 if (!isset($_SESSION["estadoAutentica"])) {
-    header('Location:http://gestionhe.servimeters.net:86/');
+    header('Location:http://localhost/HorasExtra/view/');
 }
 
 if (!isset($_POST['id'])) {

@@ -17,7 +17,7 @@ $html = "<table>
                 <th>fecha</th>
                 <th>novedad</th>
                 <th>descuento</th>
-                <th>4128545887</th>
+                <th>11003</th>
                 <th>656518788</th>
                 <th>7894512</th>
                 <th>878513845</th>
@@ -48,7 +48,7 @@ try {
                 <td>".$items["fecha"]."</td>
                 <td>".$items["novedad"]."</td>
                 <td>".$items["descuento"]."</td>
-                <td>".$items["4128545887"]."</td>
+                <td>".$items["11003"]."</td>
                 <td>".$items["656518788"]."</td>
                 <td>".$items["7894512"]."</td>
                 <td>".$items["878513845"]."</td>

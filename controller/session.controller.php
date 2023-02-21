@@ -28,7 +28,7 @@ switch ($_GET['action']) {
     case 'finish':
         session_start();
         session_destroy();
-        header('Location:http://gestionhe.servimeters.net:86/');
+        header('Location:http://localhost/HorasExtra/');
         break;
     case 'validateRole':
         validateRole();

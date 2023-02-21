@@ -1,47 +1,40 @@
-<?php 
-    session_start();
-    if (!isset($_SESSION["estadoAutentica"])) {
-        header('Location:http://gestionhe.servimeters.net:86/');
-    }
+<?php
+session_start();
+if (!isset($_SESSION["estadoAutentica"])) {
+    header('Location:http://localhost/HorasExtra/view/');
+}
 ?>
 <!-- Form Reportar -->
 <section id="four" class="wrapper style1 special fade-up">
     <div class="container">
         <header class="major">
-            <h2>Reporte Horas Extra</h2>
+            <h3>Reporte Horas Extra</h3>
             <p></p>
         </header>
         <div class="box alt">
             <form action="" id="formReporte">
                 <div class="row gtr-uniform">
-                    <section class="col-3 col-4-medium col-12-xsmall">
-                        <h3>Cedula (Sin puntuación) <span class="error">*</span></h3>
-                        <input type="text" name="cc" id="cc" class="mainValue" value="" placeholder="**********" data-empleado="<?php echo $_SESSION['usuario']?>" data-correoEmpleado="<?php echo $_SESSION['email']?>" pattern="[0-9]{1,10}" required/> <!-- title="Solo numeros. No debe exceder los 10 digitos." -->
+                    <section class="col-2 col-4-medium col-12-xsmall">
+                        <h4 title="Sin puntuación">Cedula <b title="Sin puntuación" style="color: black;">❗</b> <span class="error">*</span></h4>
+                        <input title="Sin puntuación" type="text" name="cc" id="cc" class="mainValue" value="" placeholder="**********" data-empleado="<?php echo $_SESSION['usuario'] ?>" data-correoEmpleado="<?php echo $_SESSION['email'] ?>" pattern="[0-9]{1,10}" required /> <!-- title="Solo numeros. No debe exceder los 10 digitos." -->
+                    </section>
+                    <section class="col-2 col-4-medium col-12-xsmall">
+                        <h4>Cargo<span class="error">*</span></h4>
+                        <input type="text" name="cargo" id="cargo" class="mainValue" required /> <!-- title="Solo numeros. No debe exceder los 10 digitos." -->
                     </section>
                     <section class="col-3 col-4-medium col-12-xsmall">
-                        <h3>Cargo <span class="error">*</span></h3>
-                        <input type="text" name="cargo" id="cargo" class="mainValue" required/> <!-- title="Solo numeros. No debe exceder los 10 digitos." -->
-                    </section>
-                    <section class="col-3 col-4-medium col-12-xsmall">
-                        <h3>Centro de Costo</h3>
+                        <h4>Centro de Costo</h4>
                         <select name="ceco" id="ceco">
                             <!--Llenar datos con BD-->
                         </select>
                     </section>
-                    <section class="col-3 col-4-medium col-12-xsmall">
-                        <h3>Mes Reportado <span class="error">*</span></h3>
-                        <input type="month" name="mes" id="mes" class="mainValue" value="" required/>
+                    <section class="col-2 col-4-medium col-12-xsmall">
+                        <h4>Mes Reportado<span class="error">*</span></h4>
+                        <input type="month" name="mes" id="mes" class="mainValue" value="" required />
                     </section>
-
-                    <section class="col-4 col-4-medium col-1-xsmall">
-                        <p></p>
-                    </section>
-                    <section class="col-4 col-4-medium col-10-xsmall">
-                        <h3>Correo <span class="error">*</span></h3>
-                        <input type="email" name="correoEmpleado" id="correoEmpleado" class="mainValue" value="<?php echo $_SESSION['email']?>" required/>
-                    </section>
-                    <section class="col-4 col-4-medium col-1-xsmall">
-                        <p></p>
+                    <section class="col-3 col-4-medium col-10-xsmall">
+                        <h4>Correo <span class="error">*</span></h3>
+                            <input type="email" name="correoEmpleado" id="correoEmpleado" class="mainValue" value="<?php echo $_SESSION['email'] ?>" required />
                     </section>
 
                     <section class="col-12">
@@ -59,7 +52,7 @@
                                     <th>Actividad</th>
                                     <th>Permisos Descuentos</th>
                                 </tr>
-                            <!--Llenar encabezado con script-->
+                                <!--Llenar encabezado con script-->
                             </thead>
                             <tbody id="bodyTableEdit">
 
@@ -70,50 +63,58 @@
                         <button type="submit" id="allowAddRows" class="button primary icon solid fa-toggle-off fi">Agregar Horas Extra</button>
                     </section>
 
-                <section class="col-12">
-                    <header>
-                        <h3>Información de Horas Extra (HE) <span class="icon solid fa-exclamation-triangle help" style="color: #e44c65 !important; padding: 3px;"></span></h3>
-                    </header>
-                </section>
+                    <section class="col-12">
+                        <header>
+                            <h3>Información de Horas Extra (HE) <span class="icon solid fa-exclamation-triangle help" style="color: #e44c65 !important; padding: 3px;"></span></h3>
+                        </header>
+                    </section>
 
-                <section id="tableHE" class="col-12 sectionDisabled">
-                    <div class="table-wrapper">
-                        <table id="table">
-                            <thead>
-                            <tr id="encTableHE">
-                                <th>Fecha <span class="error">*</span></th>
-                                <th>Actividad <span class="error">*</span></th>
-                                <th>Permisos Descuentos</th>
-                            </tr>
-                            <!--Llenar datos con DB-->
+                    <section id="tableHE" class="col-12 sectionDisabled">
+                        <div class="table-wrapper-he">
+                            <table id="table" class="table-fixed-header">
+                                <thead>
+                                    <tr id="encTableHE">
+                                        <th>Fecha <span class="error">*</span></th>
+                                        <th>Actividad <span class="error">*</span></th>
+                                        <th>Permisos Descuentos</th>
+                                    </tr>
+                                    <!--Llenar datos con DB-->
                                 </thead>
                                 <tbody id="bodyTableHE">
-                                <!--Llenar datos con DB-->
-                                <tr id="rowTableHE">
-                                    <td style="width: 150px;"><input type="date" class="fechasActividades" name="fechaActividad" id="fechaActividad" value="" required/></td>
-                                    <td style="width: 150px;"><input type="text" class="novedades" name="novedad" id="novedad" placeholder="Ingrese la novedad" style="font-size: 12px;" required></td>
-                                    <td style="width: 70px;"><input type="text" class="values descuentos" name="descuentos" value="0" required pattern="^[0-9]{1,2}?(.[5]{0,1})?$" title="Solo numeros, debe terminar en un decimal .5 o en la unidad mas próxima"/></td>
-                                </tr>
+                                    <!--Llenar datos con DB-->
+                                    <tr id="rowTableHE">
+                                        <td style="width: 150px;"><input type="date" class="fechasActividades" name="fechaActividad" id="fechaActividad" value="" required /></td>
+                                        <td style="width: 150px;"><input type="text" class="novedades" name="novedad" id="novedad" placeholder="Ingrese la novedad" style="font-size: 12px;" required></td>
+                                        <td style="width: 70px;"><input type="text" class="values descuentos" name="descuentos" value="0" required pattern="^[0-9]{1,2}?(.[5]{0,1})?$" title="Solo numeros, debe terminar en un decimal .5 o en la unidad mas próxima" /></td>
+                                    </tr>
                                 </tbody>
                                 <tfoot>
-                                <tr>
-                                    <td style="text-align: right;" id="botonAgregar"><input class="button primary icon solid fa-check-circle fi" data-rows="0" type="button" name="agregarhe" id="agregarhe" value="Agregar"/></td>
-                                <tr>
-                                <tr>
-                                    <td class="tituloTotal" align="right">Total Horas Extra</td>
-                                    <td><span style="font-weight: bold; color: greenyellow;" id="calcHE">0</span></td>
-                                <tr>
-                                    <td class="tituloTotal" align="right">Total Recargos</td>
-                                    <td><span style="font-weight: bold;" id="calcRec">0</span></td>
-                                </tr>
-                                <tr>
-                                    <td class="tituloTotal" align="right">Total Descuentos</td>
-                                    <td><span style="font-weight: bold;" id="calcDescuentos">0</span></td>
-                                </tr>
-                                <tr>
-                                    <td class="tituloTotal" align="right">Total</td>
-                                    <td><span style="font-weight: bold;" id="total">0.0</span></td>
-                                </tr>
+                                    <tr>
+                                        <td style="text-align: right;" id="botonAgregar"><span class="icon solid fa-plus-square fi" title="Agregar fila" data-rows="0" name="agregarhe" id="agregarhe" style="font-size: 30px; color: #5480f1;"></span></td>
+                                        <!-- <span style="color: tomato;" data-id="${id}" class="deleteRow icon solid fa-window-close fi" onclick="deleteRow(event, this, false)"></span> -->
+                                    <tr>
+                                    <tr>
+                                        <td style="height: 50px;"></td>
+                                    </tr>
+                                    <tr id="summaries">
+                                        <td colspan="2">Totales:</td>
+                                        <td id="calcDescuentos" class="summariesFields">0</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="tituloTotal" align="right">Total Horas Extra</td>
+                                        <td><span style="font-weight: bold; color: greenyellow;" id="calcHE">0</span></td>
+                                    <tr>
+                                        <td class="tituloTotal" align="right">Total Recargos</td>
+                                        <td><span style="font-weight: bold;" id="calcRec">0</span></td>
+                                    </tr>
+                                    <!-- <tr>
+                                        <td class="tituloTotal" align="right">Total Descuentos</td>
+                                        <td><span style="font-weight: bold;" id="calcDescuentos">0</span></td>
+                                    </tr> -->
+                                    <tr>
+                                        <td class="tituloTotal" align="right">Total</td>
+                                        <td><span style="font-weight: bold;" id="total">0.0</span></td>
+                                    </tr>
                                 </tfoot>
                             </table>
                         </div>
@@ -164,6 +165,7 @@
                     <ul class="actions special">
                         <li> <button type="submit" id="sendData" data-type="create" class="button primary icon solid fa-check-circle fi">Enviar</button> </li>
                     </ul>
+                    <span>❗ Si no selecciona un aprobador, el registro quedara en modo de edición y podrá modificarlo desde el módulo "Mis Horas Extra".</span>
                 </footer>
             </section>
             <section class="col-12 col-8-medium col-12-xsmall" id="loadSpinner">

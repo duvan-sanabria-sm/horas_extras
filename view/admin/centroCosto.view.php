@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION["isAdmin"]) || (strcasecmp($_SESSION["isAdmin"], 'Si') !== 0)) {
-    header('Location:http://gestionhe.servimeters.net:86/');
+    header('Location:http://localhost/HorasExtra/view/');
 }
 
 ?>

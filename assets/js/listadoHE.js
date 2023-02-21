@@ -238,6 +238,9 @@ function editar() {
                     $(`#ceco option[value=${data.id_ceco}]`).attr("selected",true);
                 }
 
+                printSummaries(arrayDetailsHE);
+                printSummaries(arrayRecargo);
+
                 try {
                     await hideModal();
                 }catch (e) {
@@ -341,4 +344,16 @@ function buttonDeniedRows(){
 
         buttonAllowRows();
     });
+}
+
+function printSummaries(arrayValues){
+    for (let i = 0; i < arrayValues.length; i++) {
+        var idSummary;
+        var summaryValue;
+
+        idSummary = arrayValues[i].nombre.replaceAll(' ', '');
+        summaryValue = parseFloat($(`#summary_${idSummary}`).html());
+        summaryValue += parseFloat(arrayValues[i].cantidad);
+        $(`#summary_${idSummary}`).html(summaryValue);
+    }
 }
