@@ -14,8 +14,11 @@ if (!isset($_SESSION["estadoAutentica"])) {
 
     <link rel="stylesheet" href="../assets/css/main.css" />
     <link rel="stylesheet" href="../assets/css/buttons.jqueryui.min.css" />
+    <link rel="stylesheet" href="../assets/css/buttons.dataTables.min.css" />
+    <link rel="stylesheet" href="../assets/css/responsive.dataTables.min.css" />
     <link rel="stylesheet" href="../assets/css/datatables.min.css" />
     <link rel="stylesheet" href="../assets/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="../assets/css/scroller.dataTables.css" />
     <link rel="stylesheet" href="../assets/css/animate.min.css" />
     <noscript>
         <link rel="stylesheet" href="../assets/css/noscript.css" />
@@ -63,6 +66,9 @@ if (!isset($_SESSION["estadoAutentica"])) {
         <script src="../assets/js/dataTables.buttons.min.js"></script>
         <script src="../assets/js/datatables.min.js"></script>
         <script src="../assets/js/jquery.dataTables.min.js"></script>
+        <script src="../assets/js/dataTables.select.min.js"></script>
+        <script src="../assets/js/dataTables.responsive.min.js"></script>
+        <script src="../assets/js/dataTables.scroller.min.js"></script>
         <script src="../assets/js/sweetalert.min.js"></script>
 
         <?php include_once('./shared/footer.php') ?>

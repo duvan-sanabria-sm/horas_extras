@@ -23,22 +23,65 @@ $(document).ready(function(){
         user = 'none';
     }
 
-    console.log(user);
-
     let object = {
         'object': {
             'aprobador': user
         }
     }
 
-    $.when($.ajax({data: object, url: url, type: 'post',}))
-        .then(function (result) {
+    $.when($.ajax({data: object, url: url, type: 'post',}), $.ajax('../controller/CRUD.controller.php?action=listAll&model=TipoHE&crud=get'), $.ajax('../controller/CRUD.controller.php?action=listAll&model=TipoRecargo&crud=get'))
+        .then(function (result, result2, result3) {
             //Cargar Datos de Tabla
-            localStorage.setItem('arrayHEporGestionar', result);
-            var datos = JSON.parse(result);
-            var html;
+            localStorage.setItem('arrayHEporGestionar', result[0]);
+            let datos1 = JSON.parse(result2[0]);
 
-            datos.forEach((dato, index) => {
+            let htmlEncabezado;
+            let arrayDataTable = [
+                {
+                    className: 'dt-control',
+                    orderable: false,
+                    data: 'ver mas',
+                    defaultContent: '',
+                },
+                {data: 'num'},
+                {data: 'id'},
+                {data: 'documento'},
+                {data: 'año'},
+                {data: 'mes'},
+                {data: 'colaborador'},
+                {data: 'estado'},
+                {data: 'clase'},
+                {data: 'ceco'},
+                {data: 'descuento'}
+            ];
+
+            //Encabezado Horas Extra
+            datos1.forEach(element => {
+                let id = element.nombre.replaceAll(' ', '');
+                arrayDataTable.push({data: id});
+                htmlEncabezado += `<th>${element.nombre}</th>`;
+            });
+
+            datos1 = JSON.parse(result3[0]);
+
+            //Encabezado Recargo
+            datos1.forEach(element => {
+                let id = element.nombre.replaceAll(' ', '');
+                arrayDataTable.push({data: id});
+                htmlEncabezado += `<th>${element.nombre}</th>`;
+            });
+
+            arrayDataTable.push({data: 'Total'}, {data: 'ver detalle'});
+            htmlEncabezado += '<th style="background-color: #31b0313d;">Total</th>';
+            htmlEncabezado += '<th>Ver detalle</th>';
+
+            $('#encabezadoTable').append(htmlEncabezado);
+
+            let datos2 = JSON.parse(result[0]);
+            let html;
+
+            datos2.forEach((dato, index) => {
+                let total = 0;
                 html += '<tr>';
                 var anno = dato.fechaFin;
                 anno = new Date(anno);
@@ -46,13 +89,79 @@ $(document).ready(function(){
                 html += `<td></td>`;
                 html += `<td>${index}</td>`;
                 html += `<td>${dato.id}</td>`;
-                html += `<td>${dato.cc}</td>`;
-                html += `<td>${anno.getFullYear()}</td>`;
-                html += `<td>${ meses[anno.getMonth()] }</td>`;
-                html += `<td>${dato.empleado}</td>`;
-                html += `<td>${dato.aprobadorNombre}</td>`;
-                html += `<td>${dato.aprobadorTipo}</td>`;
-                html += `<td>${dato.estadoNombre}</td>`;
+                html += `<td class="isSelect">${dato.cc}</td>`;
+                html += `<td class="isSelect">${anno.getFullYear()}</td>`;
+                html += `<td class="isSelect">${ meses[anno.getMonth()] }</td>`;
+                html += `<td class="isSelect">${dato.empleado}</td>`;
+                html += `<td class="isSelect">${dato.estadoNombre}</td>`;
+                html += `<td class="isSelect">${dato.claseName ? dato.claseName : 'N/A'}</td>`;
+                html += `<td class="isSelect">${dato.cecoName ? dato.cecoName : 'N/A'}</td>`;
+
+                let object = {
+                    'object': {
+                        'id': dato.id
+                    }
+                }
+
+                $.ajax({
+                    async:false,
+                    data: object,
+                    url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=getDescuentoTotal',
+                    type: 'post',
+                    success: function(result){
+                        let data = JSON.parse(result);
+
+                        for (let i = 0; i < data.length; i++) {
+                            total += parseFloat(data[i].cantidad);
+                            for (let j = 0; j < arrayDataTable.length; j++){
+                                if (arrayDataTable[j].data == 'descuento'){
+                                    html += `<td class="isSelect">${data[i].cantidad}</td>`;
+                                }
+                            }
+                        }
+                    }
+                });
+
+                $.ajax({
+                    async:false,
+                    data: object,
+                    url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=getDetalleHora',
+                    type: 'post',
+                    success: function(result){
+                        let data = JSON.parse(result);
+
+                        for (let i = 0; i < data.length; i++) {
+                            total += parseFloat(data[i].cantidad);
+                            for (let j = 0; j < arrayDataTable.length; j++){
+                                if (data[i].nombre.replaceAll(' ', '') == arrayDataTable[j].data){
+                                    html += `<td class="isSelect">${data[i].cantidad}</td>`;
+                                }
+                            }
+                        }
+                    }
+                });
+
+                $.ajax({
+                    async:false,
+                    data: object,
+                    url: '../controller/CRUD.controller.php?action=execute&model=Recargo&crud=getRecargos',
+                    type: 'post',
+                    success: function(result){
+                        let data = JSON.parse(result);
+
+                        for (let i = 0; i < data.length; i++) {
+                            total += parseFloat(data[i].cantidad);
+                            for (let j = 0; j < arrayDataTable.length; j++){
+                                if (data[i].nombre.replaceAll(' ', '') == arrayDataTable[j].data){
+                                    html += `<td class="isSelect">${data[i].cantidad}</td>`;
+                                }
+                            }
+                        }
+                    }
+                });
+
+                html += `<td class="isSelect" style="background-color: #31b0311f;">${total}</td>`;
+
                 html += `<td><span data-reporte="${dato.id}" class="openDetails icon solid fa-eye fit" id="detalle_${dato.id}"></span></td>`;
 
                 html += '</tr>';
@@ -61,35 +170,22 @@ $(document).ready(function(){
 
             $('#tableBody').html(html);
             var table = $('#dataTable').DataTable({
-                columns: [
-                    {
-                        className: 'dt-control',
-                        orderable: false,
-                        data: 'ver mas',
-                        defaultContent: '',
-                    },
-                    {data: 'num'},
-                    {data: 'id'},
-                    {data: 'documento'},
-                    {data: 'año'},
-                    {data: 'mes'},
-                    {data: 'colaborador'},
-                    {data: 'aprobador'},
-                    {data: 'rol aprobador'},
-                    {data: 'estado'},
-                    {data: 'ver detalle'}
-                ],
+                dom: '<"top"if>rt<"clear">',
+                responsive: false,
+                scrollY: '80vh',
+                scrollCollapse: false,
+                columns: arrayDataTable,
                 paging: false,
                 "language": {
                     "search": "Ingrese un valor para filtrar la tabla: ",
                     "info": "Hay _TOTAL_ registros",
                     "zeroRecords": "No hay registros para mostrar"
                 },
-                dom: '<"top"if>rt<"clear">',
                 stateSave: true,
             });
 
-            coloriceTable();
+            table.column(1).visible(false);
+            table.column(2).visible(false);
 
             $('#dataTable tbody').on('click', 'td.dt-control', function () {
                 var tr = $(this).closest('tr');
@@ -107,30 +203,31 @@ $(document).ready(function(){
                         }
                     }
 
-                    $.when($.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=getDetalleHora', type: 'post',}), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=Recargo&crud=getRecargos', type: 'post',}), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=getDescuentoTotal', type: 'post',}), $.ajax('../controller/CRUD.controller.php?action=listAll&model=CentroCosto&crud=get'))
-                        .then(function (result1, result2, result3, result4) {
-                            row.child(format(row.data(), {result1, result2, result3, result4})).show();
+                    $.when($.ajax('../controller/CRUD.controller.php?action=listAll&model=CentroCosto&crud=get'))
+                        .then(function (result4) {
+                            row.child(format(row.data(), {result4})).show();
                             tr.addClass('shown');
                             showComments();
-                            showAprobar();
-                            rechazar();
+/*                            showAprobar();
+                            rechazar();*/
                             selectCECO(row.data().id);
                             enableUpdateCECO();
                         });
 
                 }
             });
+
+            $('#dataTable tbody').on('click', 'td.isSelect', function () {
+                var padreSuperior = $(this).closest('tr');
+                padreSuperior.toggleClass('selected');
+            });
+
+            aproveAll(table);
+            rejectAll(table);
+            selectRows(table);
+            deselectRows(table);
         })
 });
-
-function coloriceTable() {
-    $('#dataTable tbody').on('mouseenter', 'td', function () {
-        var colIdx = $('#dataTable').DataTable().cell(this).index().column;
-
-        $($('#dataTable').DataTable().cells().nodes()).removeClass('highlight');
-        $($('#dataTable').DataTable().column(colIdx).nodes()).addClass('highlight');
-    });
-}
 
 function format(d, {...results}) {
     var data = localStorage.getItem('arrayHEporGestionar');
@@ -138,57 +235,16 @@ function format(d, {...results}) {
     data = JSON.parse(data);
     data = data[d.num];
 
-    var arrayHE = JSON.parse(results.result1[0]);
-    var arrayRecargo = JSON.parse(results.result2[0]);
-    var descuentoTotal = JSON.parse(results.result3[0]);
-    descuentoTotal = descuentoTotal[0].cantidad;
-
-    var headTableHE = `<thead>
-                       <tr>`;
-    var bodyTableHE = `<tbody>
-                        <tr>`;
-    var sumaHE = 0;
-    arrayHE.forEach(element=>{
-        headTableHE += `<th>${element.nombre}</th>`;
-
-        bodyTableHE += `<td>${element.cantidad == '.0' ? '0' : element.cantidad == '.5' ? '0.5' : element.cantidad}</td>`;
-
-        sumaHE += parseFloat(element.cantidad);
-    });
-
-    var headTableRec = `<thead>
-                       <tr>`;
-    var bodyTableRec = `<tbody>
-                        <tr>`;
-    var sumaRec = 0;
-    arrayRecargo.forEach(element=>{
-        headTableRec += `<th>${element.nombre}</th>`;
-
-        bodyTableRec += `<td>${element.cantidad == '.0' ? '0' : element.cantidad == '.5' ? '0.5' : element.cantidad}</td>`;
-
-        sumaRec += parseFloat(element.cantidad);
-    });
-
     var htmlCECO = '<option value=""></option>';
-    var arrayCECO = JSON.parse(results.result4[0]);
+    var arrayCECO = JSON.parse(results.result4);
 
     arrayCECO.forEach(element => {
         htmlCECO += `<option value="${element.id}">${element.titulo}</option>`;
     });
 
-            html = `<section class="wrapper" style="background-color: rgb(245 245 245 / 42%); padding: 50px 15px 70px 15px; box-shadow: 1px -1px 20px 5px rgb(0 0 0 / 53%);">
+            html = `<section class="wrapper" style="background-color: rgb(245 245 245 / 42%); padding: 50px 15px 12px 15px; box-shadow: 1px -1px 20px 5px rgb(0 0 0 / 53%);">
                 <div class="content">
 			            <div class="row gtr-uniform gtr-50">
-			                <div class="col-10 col-8-xsmall" style="margin: auto;">
-                                <ul class="actions special">
-                                        <li> <button type="submit" data-reporte="${d.id}" data-estado="${data.id_estado}" class="aprobar button icon solid fa-check-circle fit" style="background-color: #3c763d">Aprobar</button> </li>
-                                        <li> <button type="submit" data-reporte="${d.id}" data-estado="${data.id_estado}" class="rechazar button icon solid fa-trash-alt fit" style="background-color: tomato">Rechazar</button> </li>
-                                </ul>
-                                <div class="col-8 col-6-xsmall" id="moduloGestionar${d.id}" style="margin: auto; padding: 10px">
-                                    
-                                </div>    
-                                <hr>
-			                </div>
 			                <div class="col-3 col-6-xsmall" style="margin: auto;">
                                 <input type="text" name="index" id="index_${d.id}" value=${d.num} placeholder="Index" style="display: none;"/>
 			                    <label for="ceco" style="font-weight: bold;">Centro de Costo</label>
@@ -199,43 +255,7 @@ function format(d, {...results}) {
                                     <br>
                                     <button type="submit" data-reporte="${d.id}" class="cecoUpdate button primary icon solid fa-upload fit">Actualizar CECO</button>
                                 </div>
-                            </div>
-                            <div class="col-12 col-8-xsmall">
-                                <hr>
-                                <table>
-                                ${headTableHE}
-                                <th>Total HE</th>
-                                </tr>
-                                </thead>
-                                ${bodyTableHE}
-                                <td>${sumaHE}</td>
-                                </tr>
-                                </tbody>
-                                </table>
-                            </div>
-                            <div class="col-12 col-8-xsmall">
-                                <hr>
-                                <table>
-                                ${headTableRec}
-                                <th>Total Recargos</th>
-                                </tr>
-                                </thead>
-                                ${bodyTableRec}
-                                <td>${sumaRec}</td>
-                                </tr>
-                                </tbody>
-                                </table>
-                                <hr>
-                            </div>
-                            <div class="col-3 col-6-xsmall" style="margin: auto;">
-                                <label for="descuento" style="font-weight: bold;">Permisos Descuentos</label>
-                                <input type="text" name="descuento" id="descuento" value=${descuentoTotal} placeholder="Descuento" disabled/>
-                            </div>   
-                            <br>
-                            <div class="col-3 col-6-xsmall" style="margin: auto;">
-                                <label for="total" style="font-weight: bold;">Total</label>
-                                <input type="text" name="total" id="total" value=${data.total} placeholder="Total" disabled/>
-                            </div>    
+                            </div>  
                             <div class="col-10 col-8-xsmall" style="margin: auto;">
                                 <hr>
                             </div>  
@@ -330,11 +350,8 @@ async function sendComment(e, element) {
 
         let isCommentsVisibles = element.dataset.isvisible;
 
-        console.log(isCommentsVisibles);
-
         var comentario = $(`#comentario_${id}`).val();
 
-        console.log(comentario);
 
         if (comentario.length <= 0) {
             $(`#${htmlId}`).notify("El comentario esta vacio!", 'error');
@@ -344,7 +361,7 @@ async function sendComment(e, element) {
         comentario = comentario.replaceAll('script', '');
 
         element.style.display = "none";
-        await executeComment(id, comentario, isCommentsVisibles);
+        await executeComment([id], comentario, isCommentsVisibles);
 
                 $(`#comentario_${id}`).val('');
 
@@ -373,7 +390,7 @@ async function sendComment(e, element) {
 
 }
 
-async function showAprobar() {
+/*async function showAprobar() {
     $('.aprobar').click(async function (){
 
         let reporte = $(this).data('reporte');
@@ -554,9 +571,9 @@ async function showAprobar() {
                 break;
         }
     });
-}
+}*/
 
-function rechazar() {
+/*function rechazar() {
     $('.rechazar').click(function(){
 
         let reporte = $(this).data('reporte');
@@ -594,7 +611,7 @@ function rechazar() {
 
     });
 
-}
+}*/
 
 function getDetailsReject(){
     return new Promise((resolve, reject)=>{
@@ -612,7 +629,7 @@ function getDetailsReject(){
     });
 }
 
-function executeComment(id, comentario, isCommentsVisibles = false){
+function executeComment(ids, comentario, isCommentsVisibles = false){
     return new Promise((resolve, reject)=>{
         let row;
         let creador = $('#usuarioLogin').html();
@@ -623,7 +640,7 @@ function executeComment(id, comentario, isCommentsVisibles = false){
             'object': {
                 'creadoPor': creador,
                 'fecha': fecha,
-                'idReporteHE': id,
+                'idReportesHE': JSON.stringify(ids),
                 'cuerpo': comentario
             }
         }
@@ -664,7 +681,7 @@ function executeComment(id, comentario, isCommentsVisibles = false){
     });
 }
 
-function executeAction() {
+/*function executeAction() {
     $('.sendData').click(async function (e){
         e.preventDefault();
         let reporte = $(this).data('id');
@@ -679,8 +696,6 @@ function executeAction() {
                 'estado': estado,
             }
         }
-
-        console.log(object);
 
         try {
             if (estado == 5){
@@ -716,17 +731,17 @@ function executeAction() {
         }
 
     });
-}
+}*/
 
 function ejecutarAprobacion(object) {
     return new Promise((resolve, reject)=>{
-        swal("¿Desea aprobar el registro?", {
+        swal("¿Desea aprobar el/los registro(s)?", {
             buttons: ["No!", "Si, aprobar!"],
         }).then(async (val)=>{
             if (val){
                 try {
                     await updateReport(object);
-                    $.notify('Registro aprobado con éxito', 'success');
+                    $.notify('Registro(s) aprobado(s) con éxito', 'success');
                     resolve(true);
                 }catch (e) {
                     console.log('Error al aprobar ', e);
@@ -746,7 +761,7 @@ function ejecutarRechazo(object){
     return new Promise(async (resolve, reject)=>{
         try {
             await updateReport(object);
-            $.notify('Registro rechazado con éxito', 'success');
+            $.notify('Registro(s) rechazado(s) con éxito', 'success');
             resolve(true);
         }catch (e){
             console.log('Error al ejecutar rechazo ', e);
@@ -756,6 +771,7 @@ function ejecutarRechazo(object){
 }
 
 function sendEmail(data, tipo){
+
     $.ajax({
         data:  data,
         url: `../controller/Email.controller.php?email=${tipo}`,
@@ -858,6 +874,7 @@ function updateCECO() {
                 localStorage.setItem('arrayHEporGestionar', JSON.stringify(data));
 
                 $.notify('Se actualizo el Centro de Costo', 'success');
+                reloadPage();
             }
 
         });
@@ -865,73 +882,72 @@ function updateCECO() {
 }
 
 function loadModuleGestionar(reporte, type, estado){
-    let html = `<section id="" class="wrapper style2 special fade" style="padding: 20px">
-                        <div class="col-6 col-4-xsmall" id="moduloGestionar" style="margin: auto;">
-                            <form action="" id="gestionarFrom">
-                                <label for="listAprobador">Gerente Aprobador</label>
-                                <select name="listAprobador${reporte}" id="listAprobador${reporte}">
-                                </select>
-                                <br>
-                                <ul class="actions special">
-                                    <li> <button type="submit" data-id="${reporte}" data-estado="${estado}" class="sendData button primary icon solid fa-check-circle fi">Enviar</button> </li>
-                                </ul>
-                            </form>
-                        </div> 
-                    </section>`;
-    let htmlGerente;
+    let html = getHtmlGestionar(reporte, estado);
+    $(`#moduloGestionar${reporte}`).html(html);
 
-    $.when($.ajax('../controller/CRUD.controller.php?action=listAll&model=Aprobador&crud=get'))
-        .then(function (result){
-            let datos = JSON.parse(result);
-            datos.forEach(element => {
-                if (element.tipo == type) {
-                    htmlGerente += `<option value="${element.id}" data-correoAprobador="${element.correo}">${element.nombre}</option>`;
-                }
-            });
-            $(`#moduloGestionar${reporte}`).html(html);
-            $(`#listAprobador${reporte}`).html(htmlGerente);
-            executeAction();
-        })
+    let htmlGerente = getHtmlListAprobador(type);
+    $(`#listAprobador${reporte}`).html(htmlGerente);
+    //executeAction();
 }
 
-function getDataEmailAprove(reporte){
+function getDataEmailAprove(reportes){
 
     let arrayData = localStorage.getItem('arrayHEporGestionar');
     let values = JSON.parse(arrayData);
-    values = values[$(`#index_${reporte}`).val()];
+    let correoAprobador = $('#gestionarContable').data('aprobadorcorreo');
 
-    var correoAprobador = $(`#listAprobador${reporte}`).find(':selected').data('correoaprobador');
-    let correoEmpleado = values.correoEmpleado;
-    let empleado = values.empleado;
+    let data = [];
 
-    let data = {
-        'to': correoAprobador,
-        'from': correoEmpleado,
-        'empleado': empleado,
-        'idReporte': reporte
-    }
+    reportes.forEach(reporte=>{
+        values.forEach(element=>{
+            if (reporte == element.id){
+                let correoEmpleado = element.correoEmpleado;
+
+                let objectData = {
+                    'to': correoEmpleado,
+                    'from': correoAprobador,
+                    'idReporte': reporte
+                }
+
+                data.push(objectData);
+            }
+        })
+    });
 
     return data;
 }
 
-function getDataEmailReject(reporte){
+function getDataEmailReject(reportes){
 
     let arrayData = localStorage.getItem('arrayHEporGestionar');
     let values = JSON.parse(arrayData);
-    values = values[$(`#index_${reporte}`).val()];
-
-    var cc = $(`#listAprobador${reporte}`).find(':selected').data('correoaprobador');
-    var correoAprobador = values.correoJefe;
-    let correoEmpleado = values.correoEmpleado;
-    let empleado = values.aprobadorNombre;
-
-    let data = {
-        'to': correoEmpleado,
-        'from': correoAprobador,
-        'empleado': empleado,
-        'idReporte': reporte,
-        'cc': cc
+    let correoAprobador = $('#gestionar').data('aprobadorcorreo');
+    let cc = '';
+    try{
+        cc = $(`#listAprobador`).find(':selected').data('correoaprobador');
+    }catch (e){
+        console.log(e);
     }
+    let data = [];
+
+    reportes.forEach(reporte=>{
+        values.forEach(element=>{
+            if (reporte == element.id){
+                let correoEmpleado = element.correoEmpleado;
+                let empleado = element.aprobadorNombre;
+
+                let objectData = {
+                    'to': correoEmpleado,
+                    'from': correoAprobador,
+                    'empleado': empleado,
+                    'idReporte': reporte,
+                    'cc': cc
+                }
+
+                data.push(objectData);
+            }
+        })
+    });
 
     return data;
 }
@@ -943,10 +959,9 @@ function updateReport(object){
             url: '../controller/CRUD.controller.php?action=execute&model=Reporte&crud=updateEstado',
             type: 'post',
             success: function (result) {
-                console.log('Resultado Update ', result);
 
                 if (isNaN(parseInt(result))) {
-                    $.notify('No se actualizó el registro de Horas Extra', 'error');
+                    $.notify('No se actualizó el/los registro(s) de Horas Extra', 'error');
                     reject(false);
                 }
 
@@ -956,13 +971,13 @@ function updateReport(object){
     })
 }
 
-async function rejectReport(reporte, estado){
+async function rejectReport(reportes, estado){
 
     let detailReject;
 
     try {
         detailReject = await getDetailsReject();
-        await executeComment(reporte, detailReject);
+        await executeComment(reportes, detailReject);
     }catch (e){
         console.log(e);
         return false;
@@ -970,7 +985,7 @@ async function rejectReport(reporte, estado){
 
     let object = {
         'object': {
-            'reporte': reporte,
+            'reportes': JSON.stringify(reportes),
             'estado': estado,
         }
     }
@@ -981,22 +996,362 @@ async function rejectReport(reporte, estado){
         type: 'post',
         success: function (result) {
             if (isNaN(parseInt(result))) {
-                $.notify('No se actualizó el registro de Horas Extra', 'error');
+                $.notify('No se actualizó el/los registro(s) de Horas Extra', 'error');
                 return false;
             }
 
-            $.notify('Registro rechazado con éxito', 'success');
+            $.notify('Registro(s) rechazado(s) con éxito', 'success');
 
-            let data = getDataEmailReject(reporte);
+            let data = getDataEmailReject(reportes);
 
-            data.motivo = detailReject;
+            data.forEach(element=>{
+                element.motivo = detailReject;
+            });
 
-            sendEmail(data, 'rechazoHE');
+            let dataStringArray = data.map(element=>{
+                return JSON.stringify(element);
+            });
+
+            sendEmail({'data': dataStringArray}, 'rechazoHE');
 
             reloadPage();
 
             return true;
         }
     });
+}
+
+function aproveAll(myTable){
+    $('#allAprove').on('click', function() {
+        let rol = $('#gestionar').data('rol');
+        let typeGestion = $('#typeGestion').data('type');
+
+        if (typeGestion == 'gestionJefesGerentes'){
+            if (rol == 'Jefe'){
+                loadModuleGestionar('', 'Gerente', '');
+                executeAproveAllJefe(myTable);
+                return;
+            } else if(rol == 'Gerente'){
+                executeAproveAll(myTable, 'RH');
+            }
+        }else if(typeGestion == 'gestionRH'){
+            executeAproveAll(myTable, 'Contable');
+        } else if(typeGestion == 'gestionContable'){
+            executeAproveAll(myTable, null);
+        }
+    });
+}
+
+function rejectAll(myTable){
+    $('#allReject').on('click', function() {
+        let rol = $('#gestionar').data('rol');
+        let typeGestion = $('#typeGestion').data('type');
+
+        let rowData = getelectData(myTable);
+        if (!rowData){
+            return;
+        }
+
+        if (typeGestion == 'gestionJefesGerentes'){
+            if (rol == 'Jefe'){
+                let estado = getEstadoAprobacion('rechazo');
+                rejectReport(rowData, estado);
+                return;
+            }else if (rol == 'Gerente'){
+                swal("¿Desea seleccionar un Jefe para el rechazo?", {
+                    buttons: ["No!", "Si, seleccionar!"],
+                }).then((val)=>{
+                    if (val){
+                        loadModuleGestionar('', 'Jefe', '');
+                        $('#buttonGestionar').attr('id', 'buttonGestionarReject');
+                        executeRejectAll(myTable, 'rechazoJefe');
+                    }else{
+                        let estado = getEstadoAprobacion('rechazo');
+                        rejectReport(rowData, estado);
+                    }
+                })
+            }
+        } else if(typeGestion == 'gestionRH' || typeGestion == 'gestionContable'){
+            loadModuleGestionar('', 'Gerente', '');
+            $('#buttonGestionar').attr('id', 'buttonGestionarReject');
+            executeRejectAll(myTable, 'rechazo');
+        }
+
+    });
+}
+
+function selectRows(myTable){
+    $('#selectAllRows').click(function () {
+        /*$('#dataTable tbody tr').each(function() {
+            $(this).toggleClass('selected');
+        });*/
+
+        myTable.rows().select();
+    });
+}
+
+function deselectRows(myTable){
+    $('#deselectAllRows').click(function () {
+        /*$('#dataTable tbody tr').each(function() {
+            $(this).toggleClass('selected');
+        });*/
+
+        myTable.rows().deselect();
+    });
+}
+
+function getHtmlGestionar(reporte, estado){
+    let html = `<section id="" class="animate__animated animate__bounceIn wrapper special fade" style="padding: 10px; height: 150px;">
+                        <div class="col-6 col-4-xsmall" style="margin: auto;">
+                            <form action="" id="gestionarFrom">
+                                <label for="listAprobador" style="font-size: 15px;">Escalar a:</label>
+                                <select name="listAprobador${reporte}" id="listAprobador${reporte}">
+                                </select>
+                                <br>
+                                <ul class="actions special">
+                                    <li> <button type="submit" data-id="${reporte}" data-estado="${estado}" id="buttonGestionar" class="button primary icon solid fa-check-circle fi">Enviar</button> </li>
+                                </ul>
+                            </form>
+                        </div> 
+                    </section>`;
+
+    return html;
+}
+
+function getHtmlListAprobador(type){
+    let htmlGerente;
+    $.ajax({
+        async: false,
+        url: '../controller/CRUD.controller.php?action=listAll&model=Aprobador&crud=get',
+        type: 'post',
+        success: function(result){
+
+            let datos = JSON.parse(result);
+            datos.forEach(element => {
+                if (element.tipo == type) {
+                    htmlGerente += `<option value="${element.id}" data-correoAprobador="${element.correo}">${element.nombre}</option>`;
+                }
+            });
+        }
+    });
+    return htmlGerente;
+}
+
+function executeAproveAllJefe(myTable){
+    $('#buttonGestionar').on('click', async function (e) {
+        e.preventDefault();
+        let rowData = getelectData(myTable);
+        if (!rowData){
+            return;
+        }
+        let estado = getEstadoAprobacion('aprobar');
+        let aprobador = $(`#listAprobador`).find(':selected').val();
+        let object = {
+            'object': {
+                'reportes': JSON.stringify(rowData),
+                'aprobador': aprobador,
+                'estado': estado,
+            }
+        }
+        let ejecutado = await ejecutarAprobacion(object);
+
+        if (!ejecutado){
+            return true;
+        }
+
+        var correoAprobador = $('#gestionar').data('aprobadorcorreo');
+        let correoEnviadoA = $(`#listAprobador`).find(':selected').data('correoaprobador');
+
+        let data = {
+            'to': correoEnviadoA,
+            'from': correoAprobador,
+        }
+
+        sendEmail(data, 'aprobacionMasiva');
+
+        reloadPage();
+    })
+}
+
+async function executeAproveAll(myTable, aproveType){
+
+        let rowData = getelectData(myTable);
+        if (!rowData){
+            return;
+        }
+
+        let estado = getEstadoAprobacion('aprobar');
+        let aprobador;
+        let correoEmpleado;
+
+        try {
+            if (aproveType){
+                let objectType = {
+                    'object': {
+                        'gestion': aproveType
+                    }
+                }
+
+                let dataRes = await getAprobadorByGestion(objectType);
+                dataRes = JSON.parse(dataRes);
+                aprobador = dataRes[0].id;
+                correoEmpleado = dataRes[0].correo;
+            } else{
+                aprobador = $('#gestionarContable').data('aprobador');
+            }
+
+            let object = {
+                'object': {
+                    'reportes': JSON.stringify(rowData),
+                    'aprobador': aprobador,
+                    'estado': estado,
+                }
+            }
+
+            let ejecutado = await ejecutarAprobacion(object);
+
+            if (!ejecutado) {
+                return true;
+            }
+
+            if (aproveType){
+
+                let correoAprobador = $('#gestionar').data('aprobadorcorreo');
+
+                if (!correoAprobador){
+                    correoAprobador = $('#gestionarRH').data('aprobadorcorreo');
+                }
+
+                let data = {
+                    'to': correoEmpleado,
+                    'from': correoAprobador,
+                }
+
+                sendEmail(data, 'aprobacionMasiva');
+            }else{
+                let data = getDataEmailAprove(rowData);
+                let dataStringArray = data.map(element=>{
+                    return JSON.stringify(element);
+                });
+
+                sendEmail({'data': dataStringArray}, 'aprobacionHE');
+            }
+
+            reloadPage();
+        }catch (e){
+            console.log(e);
+        }
+}
+
+function executeRejectAll(myTable, aproveType){
+    $('#buttonGestionarReject').on('click', async function (e) {
+        e.preventDefault();
+        let rowData = getelectData(myTable);
+        if (!rowData){
+            return;
+        }
+
+        let aprobador = $(`#listAprobador`).find(':selected').val();
+        let estado = getEstadoAprobacion(aproveType);
+
+        let object = {
+            'object': {
+                'reportes': JSON.stringify(rowData),
+                'aprobador': aprobador,
+                'estado': estado,
+            }
+        }
+        let detailReject;
+        try {
+            detailReject = await getDetailsReject();
+            await executeComment(rowData, detailReject);
+            await ejecutarRechazo(object);
+
+            let correoAprobador = $('#gestionar').data('aprobadorcorreo');
+
+            if (!correoAprobador){
+                correoAprobador = $('#gestionarRH').data('aprobadorcorreo');
+            }
+
+            if (!correoAprobador){
+                correoAprobador = $('#gestionarContable').data('aprobadorcorreo');
+            }
+
+            let correoEmpleado = $(`#listAprobador`).find(':selected').data('correoaprobador');
+
+            let data = {
+                'to': correoEmpleado,
+                'from': correoAprobador,
+                'motivo': detailReject
+            }
+
+            sendEmail(data, 'rechazoMasivo');
+            reloadPage();
+        }catch (e) {
+            console.log('Rechazo cancelado ', e);
+            return true;
+        }
+    });
+}
+
+function getelectData(myTable) {
+    let rowData = myTable.rows('.selected').data().toArray();
+    if (rowData.length <= 0){
+        swal('Seleccione filas para ejecutar la acción!');
+        return;
+    }
+    let data = [];
+    rowData.forEach(function (element){
+        data.push(element.id);
+    });
+    return data;
+}
+
+function getEstadoAprobacion(gestion) {
+    let rol = $('#gestionar').data('rol');
+    let typeGestion = $('#typeGestion').data('type');
+
+    let estado;
+    switch (typeGestion) {
+        case 'gestionJefesGerentes':
+            switch (rol) {
+                case 'Jefe':
+                    if (gestion == 'aprobar'){
+                        estado = 5;
+                    }else if(gestion == 'rechazo'){
+                        estado = 2;
+                    }
+                    break;
+                case 'Gerente':
+                    if (gestion == 'aprobar'){
+                        estado = 7;
+                    }else if(gestion == 'rechazoJefe'){
+                        estado = 6;
+                    }else if(gestion == 'rechazo'){
+                        estado = 2;
+                    }
+                    break;
+            }
+            break;
+        case 'gestionRH':
+            if (gestion == 'aprobar'){
+                estado = 9;
+            }else if(gestion == 'rechazo'){
+                estado = 8;
+            }
+            break;
+        case 'gestionContable':
+            if (gestion == 'aprobar'){
+                estado = 1;
+            }else if(gestion == 'rechazo'){
+                estado = 10;
+            }
+            break;
+        default:
+            estado = 0;
+            break;
+    }
+
+    return estado;
 }
 

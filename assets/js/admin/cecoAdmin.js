@@ -9,7 +9,7 @@ $(document).ready(function () {
             data.forEach(element=>{
                 html += `<tr>
                          <td><input type="text" class="fieldEdit" name="" id="ceco_${element.id}" value="${element.titulo}" style="font-size: 12px;" required></td>
-                         <td> <span data-id="${element.id}" class="updateCeco icon solid fa-check-circle fi"></span> </td>
+                         <td> <span data-id="${element.id}" class="updateCeco icon solid fa-check-circle fi saveAdmin" style="color: #3c763d;"></span> </td>
                         </tr>`;
             });
 

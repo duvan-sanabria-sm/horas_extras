@@ -42,14 +42,7 @@ $(document).ready(function(e) {
     $.when($.ajax('../controller/CRUD.controller.php?action=listAll&model=CentroCosto&crud=get'), $.ajax('../controller/CRUD.controller.php?action=listAll&model=TipoHE&crud=get'), $.ajax('../controller/CRUD.controller.php?action=listAll&model=TipoRecargo&crud=get'), $.ajax('../controller/CRUD.controller.php?action=listAll&model=Aprobador&crud=get'))
     .then(function (result1, result2, result3, result4) {
         // Cargar CECOS
-        var html = '<option value=""></option>';
-        var datos = JSON.parse(result1[0]);
-
-        datos.forEach(element => {
-            html += `<option value="${element.id}">${element.titulo}</option>`;
-        });
-
-        $('#ceco').html(html);
+        cargarLista(result1[0], 'ceco');
 
         //Celdas de Resumen
         var summaryCells = '';
@@ -65,7 +58,7 @@ $(document).ready(function(e) {
 
             headerTable += `<th>${element.nombre}</th>`;
 
-            bodyTable += `<td style="width: 70px;"><input type="text" class="values valueHE" name="${id}" id="${id}" data-codigo="${element.codigo}" value="0" required pattern="^[0-9]{1,2}?(.[0,5]{0,1})?$" title="Solo numeros, para decimales debe terminar en .5"/></td>`
+            bodyTable += `<td style="width: 70px;"><input type="text" class="values valueHE" name="${id}" data-id="${id}" data-codigo="${element.codigo}" value="0" required pattern="^[0-9]{1,2}?(.[0,5]{0,1})?$" title="Solo numeros, para decimales debe terminar en .5"/></td>`
             
             summaryCells += `<td id="summary_${id}" class="summariesFields">0</td>`;
         });
@@ -87,7 +80,7 @@ $(document).ready(function(e) {
 
             headerTable += `<th>${element.nombre}</th>`;
 
-            bodyTable += `<td style="width: 70px;"><input type="text" class="values valueRecargo" name="${id}" id="${id}" data-codigo="${element.codigo}" value="0" required pattern="^[0-9]{1,2}?(.[0,5]{0,1})?$" title="Solo numeros, para decimales debe terminar en .5"/></td>`
+            bodyTable += `<td style="width: 70px;"><input type="text" class="values valueRecargo" name="${id}" data-id="${id}" data-codigo="${element.codigo}" value="0" required pattern="^[0-9]{1,2}?(.[0,5]{0,1})?$" title="Solo numeros, para decimales debe terminar en .5"/></td>`
             summaryCells += `<td id="summary_${id}" class="summariesFields">0</td>`;
         });
 
@@ -195,12 +188,17 @@ function setDataAprobador() {
     })
 }
 
+function validateInput(inputValue) {
+    const regex = /^(0|[1-9]\d*)(\.5|\.0)?$/;
+    return regex.test(parseFloat(inputValue));
+}
+
 function focusValuesHE() {
     
     $('.values').on('focus', function(e) {
 
         var valorActual = $(this).val();
-        if (valorActual == '0') {
+        if (valorActual == '0' || isNaN(valorActual) || !validateInput(valorActual)) {
             $(this).val('');
         }
     });
@@ -208,7 +206,7 @@ function focusValuesHE() {
     $('.values').on('blur', function(e) {
 
         var valorActual = $(this).val();
-        if (valorActual == '') {
+        if (valorActual == '' || isNaN(valorActual) || !validateInput(valorActual)) {
             $(this).val('0');
             return;
         }
@@ -233,16 +231,12 @@ function sumValuesHE() {
 
         valorHE = $(this).val();
         
-        if (valorHE == '') {
+        if (valorHE == '' || isNaN(valorHE) || !validateInput(valorHE)) {
             valorHE = 0;
         }
 
-        if (!isNaN(valorHE)) {
-
-            if (valorHE !== '0.0' || valorHE !== 0 || valorHE !== '0') {
-                
-                suma -= parseFloat(valorHE);
-            }
+        if (valorHE !== '0.0' || valorHE !== 0 || valorHE !== '0') {
+            suma -= parseFloat(valorHE);
         }
         
     });
@@ -252,7 +246,7 @@ function sumValuesHE() {
 
         valorHE = $(this).val();
         
-        if (valorHE == '') {
+        if (valorHE == '' || isNaN(valorHE) || !validateInput(valorHE)) {
             valorHE = 0;
         }
 
@@ -287,16 +281,12 @@ function sumValuesRecargo() {
 
         valorHE = $(this).val();
 
-        if (valorHE == '') {
+        if (valorHE == '' || isNaN(valorHE) || !validateInput(valorHE)) {
             valorHE = 0;
         }
 
-        if (!isNaN(valorHE)) {
-
-            if (valorHE !== '0.0' || valorHE !== 0 || valorHE !== '0') {
-                
-                suma -= parseFloat(valorHE);
-            }
+        if (valorHE !== '0.0' || valorHE !== 0 || valorHE !== '0') {
+            suma -= parseFloat(valorHE);
         }
         
     });
@@ -306,7 +296,7 @@ function sumValuesRecargo() {
 
         valorHE = $(this).val();
 
-        if (valorHE == '') {
+        if (valorHE == '' || isNaN(valorHE) || !validateInput(valorHE)) {
             valorHE = 0;
         }
 
@@ -334,16 +324,12 @@ function sumDescuento() {
 
         valorHE = $(this).val();
 
-        if (valorHE == '') {
+        if (valorHE == '' || isNaN(valorHE) || !validateInput(valorHE)) {
             valorHE = 0;
         }
 
-        if (!isNaN(valorHE)) {
-
-            if (valorHE !== '0.0' || valorHE !== 0 || valorHE !== '0') {
-
-                suma -= parseFloat(valorHE);
-            }
+        if (valorHE !== '0.0' || valorHE !== 0 || valorHE !== '0') {
+            suma -= parseFloat(valorHE);
         }
 
     });
@@ -353,9 +339,10 @@ function sumDescuento() {
 
         valorHE = $(this).val();
 
-        if (valorHE == '') {
+        if (valorHE == '' || isNaN(valorHE) || !validateInput(valorHE)) {
             valorHE = 0;
         }
+
 
         if (!isNaN(valorHE)) {
             suma += parseFloat(valorHE);
@@ -409,17 +396,13 @@ function sendData() {
         let idReporteHE;
 
         //DATOS DE REPORTE HE
+        var cc = $('#cc').val();
+        var cargo = $('#cargo').val();
+        var correoEmpleado = $('#correoEmpleado').val();
         var ceco = $('#ceco').children("option:selected").val();
         var total = $('#total').html();
         var empleado = $('#cc').data('empleado');
-        var correoEmpleado = $('#correoEmpleado').val();
-        var cc = $('#cc').val();
-        var cargo = $('#cargo').val();
         //***************
-
-        if (ceco.length <= 0){
-            ceco = null;
-        }
 
         if (cc.length <= 0 || empleado.length <= 0 || cargo.length <= 0) {
             $(this).notify("Hay campos requeridos (*) que estan vacios!", 'error');
@@ -431,6 +414,10 @@ function sendData() {
             $(this).notify("El numero de Cedula no es valido!", 'error');
             console.log('Error en la cedula');
             return false;
+        }
+
+        if (ceco.length <= 0){
+            ceco = null;
         }
 
         var fechas = getFechas();
@@ -745,13 +732,15 @@ function getFechas(){
         year = fecha.getFullYear();
     }
 
-    fechas[2] = year + '-' + month + '-26';
+    fechas[2] = year + '-' + month + '-01';
 
     if (fecha.getMonth() <= 8){
-        fechas[1] = fecha.getFullYear() + '-0' + (fecha.getMonth() + 1)  + '-25';
+        fechas[1] = fecha.getFullYear() + '-0' + (fecha.getMonth() + 1)  + '-' + fecha.getDate();
     }else{
-        fechas[1] = fecha.getFullYear() + '-' + (fecha.getMonth() + 1)  + '-25';
+        fechas[1] = fecha.getFullYear() + '-' + (fecha.getMonth() + 1)  + '-' + fecha.getDate();
     }
+
+    console.log('Fechas ...', fechas);
 
     return fechas;
 }
@@ -947,7 +936,7 @@ function addRow() {
         let row = $('#rowTableHE').html();
         id++;
 
-        $('#bodyTableHE').append(`<tr id="row_${id}" class="rowTable">  ${row}  <td align="left" style="width: 30px;"><span style="color: tomato;" data-id="${id}" class="deleteRow icon solid fa-window-close fi" onclick="deleteRow(event, this, false)"></span></td> </tr>`);
+        $('#bodyTableHE').append(`<tr id="row_${id}" class="rowTable">  ${row}  <td align="left" style="width: 30px;"><span title="Eliminar Fila" style="color: tomato;" data-id="${id}" class="deleteRow icon solid fa-window-close fi" onclick="deleteRow(event, this, false)"></span></td> </tr>`);
 
         const scroll=document.querySelector(".table-wrapper-he");
         scroll.scrollTop=scroll.scrollHeight;
@@ -998,20 +987,18 @@ async function deleteRow(e, element, isDelete){
             if (inputs[i].classList.contains('valueHE')){
                 restarHE += parseFloat(inputs[i].value);
 
-                var idField = inputs[i].id;
+                var idField = inputs[i].dataset.id;
                 var summary = $(`#summary_${idField}`).html();
                 summary -= parseFloat(inputs[i].value);
-                console.log(summary);
                 $(`#summary_${idField}`).html(summary);
             }
 
             if (inputs[i].classList.contains('valueRecargo')){
                 restarRecargos += parseFloat(inputs[i].value);
 
-                var idField = inputs[i].id;
+                var idField = inputs[i].dataset.id;
                 var summary = $(`#summary_${idField}`).html();
                 summary -= parseFloat(inputs[i].value);
-                console.log(summary);
                 $(`#summary_${idField}`).html(summary);
             }
         }
@@ -1311,7 +1298,7 @@ function summaryValues() {
 
     $('.values').on('focus', function(e) {
 
-        idField = $(this).attr('id');
+        idField = $(this).data('id');
 
         if (!idField) {
             return;
@@ -1348,4 +1335,15 @@ function summaryValues() {
 
 function clearSummaryFields() {
     $('.summariesFields').html(0);
+}
+
+function cargarLista(data, idLista){
+    let html = '<option value=""></option>';
+    let datos = JSON.parse(data);
+
+    datos.forEach(element => {
+        html += `<option value="${element.id}">${element.titulo}</option>`;
+    });
+
+    $(`#${idLista}`).html(html);
 }

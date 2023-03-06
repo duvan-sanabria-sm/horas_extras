@@ -6,28 +6,6 @@ if (!isset($_SESSION["isAdmin"]) || (strcasecmp($_SESSION["isAdmin"], 'Si') !== 
 
 ?>
 
-<section id="five" class="wrapper style2 special fade">
-    <div class="container">
-        <header>
-            <h3 style="color: white;">Administracion Centro de Costo</h3>
-        </header>
-
-        <section class="col-12 col-4-medium col-12-xsmall">
-            <table class="tableAdmin">
-                <thead>
-                    <tr>
-                        <th>Titulo</th>
-                        <th>Guardar</th>
-                    </tr>
-                </thead>
-                <tbody id="ceco">
-                    <!-- Llenar datos con iteracion -->
-                </tbody>
-            </table>
-        </section>
-    </div>
-</section>
-
 <section id="four" class="wrapper style1 special fade-up">
     <div class="container">
         <header>
@@ -53,5 +31,27 @@ if (!isset($_SESSION["isAdmin"]) || (strcasecmp($_SESSION["isAdmin"], 'Si') !== 
                 </section>
             </div>
         </form>
+    </div>
+</section>
+
+<section id="five" class="wrapper style2 special fade">
+    <div class="container">
+        <header>
+            <h3 style="color: white;">Administracion Centro de Costo</h3>
+        </header>
+
+        <section class="col-12 col-4-medium col-12-xsmall">
+            <table class="tableAdmin">
+                <thead>
+                    <tr>
+                        <th>Titulo</th>
+                        <th>Guardar</th>
+                    </tr>
+                </thead>
+                <tbody id="ceco">
+                    <!-- Llenar datos con iteracion -->
+                </tbody>
+            </table>
+        </section>
     </div>
 </section>

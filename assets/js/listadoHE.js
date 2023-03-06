@@ -28,8 +28,8 @@ $(document).ready(function(e) {
     
                     html += `<td>${dato.id}</td>`;
                     html += `<td>${dato.cc}</td>`;
-                    html += `<td>${dato.cargo}</td>`;
                     html += `<td>${dato.cecoName ? dato.cecoName : 'N/A' }</td>`;
+                    html += `<td>${dato.claseName ? dato.claseName : 'N/A' }</td>`;
                     html += `<td>${anno.getFullYear()}</td>`;
                     html += `<td>${ meses[anno.getMonth()] }</td>`;
                     html += `<td>${dato.aprobadorNombre ? dato.aprobadorNombre : 'N/A' }</td>`;
@@ -115,8 +115,8 @@ function editar() {
             } 
         }
         
-        $.when($.ajax({data: data, url: './estado/editarHE.view.php', type: 'post'}), $.ajax('./reportar/index.view.php'), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=getCantHorasExtraByReport', type: 'post'}), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=Recargo&crud=getCantRecargosByReport', type: 'post'}), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=Comentario&crud=getComments', type: 'post'}), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=getHorasExtraByReport', type: 'post'}))
-        .then(function (result1, result2, result3, result4, result5, result6) {
+        $.when($.ajax({data: data, url: './estado/editarHE.view.php', type: 'post'}), $.ajax('./reportar/index.view.php'), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=getCantHorasExtraByReport', type: 'post'}), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=Recargo&crud=getCantRecargosByReport', type: 'post'}), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=getHorasExtraByReport', type: 'post'}))
+        .then(function (result1, result2, result3, result4, result5) {
             if (data.id_estado !== '1002'){
                 $('#links').append(script_two, style);
             }
@@ -125,8 +125,7 @@ function editar() {
 
             var arrayDetailsHE = JSON.parse(result3[0]);
             var arrayRecargo = JSON.parse(result4[0]);
-            var arrayComments = JSON.parse(result5[0]);
-            var arrayHE = JSON.parse(result6[0]);
+            var arrayHE = JSON.parse(result5[0]);
             
             //Cargar HTML Editar
             $('#result').html(result1[0]);
@@ -151,19 +150,7 @@ function editar() {
 
             setTimeout(() => {
 
-                var htmlComments;
-
-                arrayComments.forEach(element=>{
-                    htmlComments += '<tr>';
-                    htmlComments += `<td style="text-align: left" id="comment-${element.id}">${element.creadoPor} - ${element.fecha}</td>`;
-                    htmlComments += '</tr>';
-                    htmlComments += '<tr>';
-                    htmlComments += `<td>${element.cuerpo}</td>`;
-                    htmlComments += '</tr>';
-                });
-
-                //Cargar comentarios
-                $('#bodyComments').html(htmlComments);
+                seeComments(object);
 
                 //Cargar datos de HE, Recargos
                 printDetalleHE(arrayHE, arrayDetailsHE, arrayRecargo);
@@ -289,12 +276,12 @@ function printDetalleHE(data1, data2, data3) {
         sumaDescuento += parseFloat(data1[i].descuento);
 
         for (let j = indiceHE; j < (cantHE + indiceHE); j++) {
-            html += `<td><input type="text" class="fieldEdit values valueHE" name="" id="" data-codigo="${data2[j].tipo_horaExtra}" value="${data2[j].cantidad}" required pattern="^[0-9]{1,2}?(.[0,5]{0,1})?$" title="Solo numeros, debe terminar en un decimal .5 o en la unidad mas próxima"/></td>`;
+            html += `<td><input type="text" class="fieldEdit values valueHE" name="" data-id="${data2[j].nombre.replaceAll(' ', '')}" data-codigo="${data2[j].tipo_horaExtra}" value="${data2[j].cantidad}" required pattern="^[0-9]{1,2}?(.[0,5]{0,1})?$" title="Solo numeros, debe terminar en un decimal .5 o en la unidad mas próxima"/></td>`;
             sumaHE += parseFloat(data2[j].cantidad);
         }
 
         for (let k = indiceRec; k < (cantRecargo + indiceRec); k++) {
-            html += `<td><input type="text" class="fieldEdit values valueRecargo" name="" id="" data-codigo="${data3[k].tipo_recargo}" value="${data3[k].cantidad}" required pattern="^[0-9]{1,2}?(.[0,5]{0,1})?$" title="Solo numeros, debe terminar en un decimal .5 o en la unidad mas próxima"/></td>`;
+            html += `<td><input type="text" class="fieldEdit values valueRecargo" name="" data-id="${data3[k].nombre.replaceAll(' ', '')}" data-codigo="${data3[k].tipo_recargo}" value="${data3[k].cantidad}" required pattern="^[0-9]{1,2}?(.[0,5]{0,1})?$" title="Solo numeros, debe terminar en un decimal .5 o en la unidad mas próxima"/></td>`;
             sumaRecargo +=parseFloat(data3[k].cantidad);
         }
 
@@ -356,4 +343,46 @@ function printSummaries(arrayValues){
         summaryValue += parseFloat(arrayValues[i].cantidad);
         $(`#summary_${idSummary}`).html(summaryValue);
     }
+}
+
+function seeComments(object){
+    $('#seeComments').on('click', function (){
+        $.ajax({
+            data: object,
+            url: '../controller/CRUD.controller.php?action=execute&model=Comentario&crud=getComments',
+            type: 'post',
+            success: function (result) {
+                var arrayComments = JSON.parse(result);
+
+                var htmlComments;
+
+                arrayComments.forEach(element=>{
+                    htmlComments += '<tr>';
+                    htmlComments += `<td style="text-align: left" id="comment-${element.id}">${element.creadoPor} - ${element.fecha}</td>`;
+                    htmlComments += '</tr>';
+                    htmlComments += '<tr>';
+                    htmlComments += `<td>${element.cuerpo}</td>`;
+                    htmlComments += '</tr>';
+                });
+
+                //Cargar comentarios
+                $('#bodyComments').html(htmlComments);
+
+                $(`#seeComments`).css({display: 'none'});
+                $(`#hideComments`).css({display: 'inline' });
+                hideComments();
+            }
+        })
+
+    });
+}
+
+function hideComments(){
+    $('#hideComments').click(function (){
+
+        $('#bodyComments').html('');
+
+        $(`#seeComments`).css({display: 'inline'});
+        $(`#hideComments`).css({display: 'none' });
+    });
 }

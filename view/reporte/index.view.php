@@ -4,7 +4,7 @@ if (!isset($_SESSION["estadoAutentica"])) {
     header('Location:http://localhost/HorasExtra/view/');
 }
 ?>
-<section id="four" class="wrapper style1 special fade-up">
+<section id="four" class="wrapper style1 special fade-up" style="height: 75vh;">
     <div class="container">
         <div class="box alt">
 			<section id="five" class="wrapper style2 special fade">

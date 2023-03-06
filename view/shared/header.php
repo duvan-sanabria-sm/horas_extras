@@ -10,7 +10,7 @@
                             if (strcasecmp($_SESSION["rol"], 'Jefe') == 0 || strcasecmp($_SESSION["rol"], 'Gerente') == 0 || strcasecmp($_SESSION["isAdmin"], 'Si') == 0) {
                             
                     ?>
-					<li><a href="" class="menuItem" id="gestionar" data-aprobador="<?php echo $_SESSION['idAprobador']?>">Gestionar Horas Extra</a></li>
+					<li><a href="" class="menuItem" id="gestionar" data-aprobador="<?php echo $_SESSION['idAprobador']?>" data-rol="<?php echo $_SESSION['rol']?>" data-aprobadorCorreo="<?php echo $_SESSION['email']?>">Gestionar Horas Extra</a></li>
                     <?php 
                             }
                             if (strcasecmp($_SESSION["isAdmin"], 'Si') == 0) {
@@ -35,7 +35,7 @@
                             if (strcasecmp($_SESSION["gestion"], 'RH') == 0 || strcasecmp($_SESSION["isAdmin"], 'Si') == 0) {
                     ?>
 
-                    <li><a href="#" class="menuItem" id="gestionarRH">Gestion RH</a></li>
+                    <li><a href="#" class="menuItem" id="gestionarRH" data-aprobadorCorreo="<?php echo $_SESSION['email']?>">Gestion RH</a></li>
 
                     <?php 
                             }
@@ -44,7 +44,7 @@
 
                     <li><a href="#" class="menuItem" id="mainContable">Gestion Contable</a>
                         <ul>
-                            <li><a href="#" id="gestionarContable" onclick="gestionContable(event)">Aprobar/Rechazar</a></li>
+                            <li><a href="#" id="gestionarContable" onclick="gestionContable(event)" data-aprobador="<?php echo $_SESSION['idAprobador']?>" data-aprobadorCorreo="<?php echo $_SESSION['email']?>">Aprobar/Rechazar</a></li>
                             <li><a href="#" id="reporte" onclick="reporte(event)">Generar Reporte</a></li>
                         </ul>
                     </li>

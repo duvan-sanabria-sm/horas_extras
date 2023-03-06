@@ -10,6 +10,8 @@ class Reporte
     private $id;
     private $id_estado;
     private $id_ceco;
+    private $id_clase;
+    private $motivoGeneral;
     private $total;
     private $id_aprobador;
     private $empleado;
@@ -138,20 +140,26 @@ class Reporte
     public function updateEstado($object){
 
         try {
-            if (!$object["reporte"]) {
+            if (!$object["reportes"]) {
                 return false;
             }
 
-            $this->id = $object["reporte"];
+            $reportes = json_decode($object["reportes"]);
+
             $this->id_aprobador = trim($object["aprobador"]);
             $this->id_estado = $object["estado"];
 
             $this->sql = 'UPDATE dbo.ReportesHE SET id_estado = :estado, id_aprobador = :aprobador WHERE id = :id';
             $this->result = $this->connection->prepare($this->sql);
-            $this->result->bindParam(':id' , $this->id);
+
             $this->result->bindParam(':aprobador' , $this->id_aprobador);
             $this->result->bindParam(':estado' , $this->id_estado);
-            $this->result->execute();
+
+            foreach($reportes as $reporte){
+                $this->id = $reporte;
+                $this->result->bindParam(':id' , $this->id);
+                $this->result->execute();
+            }
 
             return true;
         } catch (\Throwable $th) {
@@ -186,18 +194,22 @@ class Reporte
     public function rejectEstado($object){
 
         try {
-            if (!$object["reporte"]) {
+            if (!$object["reportes"]) {
                 return false;
             }
 
-            $this->id = $object["reporte"];
+            $reportes = json_decode($object["reportes"]);
             $this->id_estado = $object["estado"];
 
             $this->sql = 'UPDATE dbo.ReportesHE SET id_estado = :estado WHERE id = :id';
             $this->result = $this->connection->prepare($this->sql);
-            $this->result->bindParam(':id' , $this->id);
             $this->result->bindParam(':estado' , $this->id_estado);
-            $this->result->execute();
+
+            foreach($reportes as $reporte){
+                $this->id = $reporte;
+                $this->result->bindParam(':id' , $this->id);
+                $this->result->execute();
+            }
 
             return true;
         } catch (\Throwable $th) {

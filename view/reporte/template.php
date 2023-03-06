@@ -2,7 +2,7 @@
 header("Pragma: public");
 header("Expires: 0");
 $fechaActual = date('d-m-Y');
-$filename = "ReporteHorasExtra_" . $fechaActual . ".xls";
+$filename = "RHE_" . $fechaActual . ".xls";
 header("Content-type: application/x-msdownload");
 header("Content-Disposition: attachment; filename=$filename");
 header("Pragma: no-cache");
@@ -10,24 +10,11 @@ header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
 
 require_once('../../controller/Report.controller.php');
 
-$html = "<table>
-         <thead>
-            <tr>
-                <th>documento</th>
-                <th>fecha</th>
-                <th>novedad</th>
-                <th>descuento</th>
-                <th>11003</th>
-                <th>656518788</th>
-                <th>7894512</th>
-                <th>878513845</th>
-                <th>1545778995</th>
-                <th>1987456654</th>
-            </tr> 
-        </thead>
-        <tbody>";
 $fechaInicio = '';
 $fechaFin = '';
+$documentoSoporte = 'Plano Horas Extras';
+$html = "<table>
+        <tbody>";
 
 if (isset($_POST['fechaInicio'])){
     $fechaInicio = $_POST['fechaInicio'];
@@ -38,29 +25,71 @@ if (isset($_POST['fechaFin'])){
 }
 
 try {
-    $arrayHE = executeReport($fechaInicio, $fechaFin, 'detalleHoras');
-    $arrayRecargos = executeReport($fechaInicio, $fechaFin, 'detalleReporte');
+    $arrayHE = executeReport($fechaInicio, $fechaFin, 'detalleHoras_2');
+    $arrayRecargos = executeReport($fechaInicio, $fechaFin, 'detalleReporte_2');
 
     foreach ($arrayHE as $items) {
         $html .= "
                 <tr>
+                <td>".$items["tipo_horaExtra"]."</td>
                 <td>".$items["cc"]."</td>
-                <td>".$items["fecha"]."</td>
-                <td>".$items["novedad"]."</td>
-                <td>".$items["descuento"]."</td>
-                <td>".$items["11003"]."</td>
-                <td>".$items["656518788"]."</td>
-                <td>".$items["7894512"]."</td>
-                <td>".$items["878513845"]."</td>
-                ";
-        foreach ($arrayRecargos as $itemsRec){
-            if ($items["id_horaExtra"] == $itemsRec["id_horaExtra"]){
-                $html .= "
-                        <td>".$itemsRec["1545778995"]."</td>
-                        <td>".$itemsRec["1987456654"]."</td>
-                    ";
-            }
+                <td>".date('d-m-Y', strtotime($fechaInicio))."</td>
+                <td>".date('d-m-Y', strtotime($fechaFin))."</td>
+                <td>".date('d-m-Y', strtotime($fechaFin))."</td>
+                <td>".$documentoSoporte."</td>
+                <td>0</td>
+                <td>2</td>
+                <td></td>
+                <td></td>";
+        $numero = $items["cantidad"];
+        $decimal_part = substr(strval($numero), -2);
+        $horas = substr(strval($numero), 0, -2);
+
+        if ($decimal_part == '.5'){
+            $html .= "
+                <td>".$horas."</td>
+                <td>30</td>";
+        }else{
+            $html .= "
+                <td>".$horas."</td>
+                <td>0</td>";
         }
+        $html .= "
+                <td>OCASIONAL</td>
+                ";
+
+        $html .= "</tr>";
+    }
+
+    foreach ($arrayRecargos as $itemsRec){
+        $html .= "
+                <tr>
+                <td>".$itemsRec["tipo_recargo"]."</td>
+                <td>".$itemsRec["cc"]."</td>
+                <td>".date('d-m-Y', strtotime($fechaInicio))."</td>
+                <td>".date('d-m-Y', strtotime($fechaFin))."</td>
+                <td>".date('d-m-Y', strtotime($fechaFin))."</td>
+                <td>".$documentoSoporte."</td>
+                <td>0</td>
+                <td>2</td>
+                <td></td>
+                <td></td>";
+        $numero = $itemsRec["cantidad"];
+        $decimal_part = substr(strval($numero), -2);
+        $horas = substr(strval($numero), 0, -2);
+
+        if ($decimal_part == '.5'){
+            $html .= "
+                <td>".$horas."</td>
+                <td>30</td>";
+        }else{
+            $html .= "
+                <td>".$horas."</td>
+                <td>0</td>";
+        }
+        $html .= "
+                <td>OCASIONAL</td>
+                ";
 
         $html .= "</tr>";
     }

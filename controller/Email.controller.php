@@ -51,38 +51,70 @@ switch ($_GET['email']) {
 
         break;
     case 'rechazoHE':
-        $to = $_POST['to'];
-        $from = $_POST['from'];
+        $result = '';
 
-        if (isset($_POST['cc'])){
-            $cc = $_POST['cc'];
-        }else{
-            $cc = $from;
+        $datas = $_POST["data"];
+        foreach ($datas as $data){
+            $obj = json_decode($data);
+            $to = $obj->to;
+            $from = $obj->from;
+            if (isset($obj->cc)){
+                $cc = $obj->cc;
+            }else{
+                $cc = $from;
+            }
+            $empleado =  $obj->empleado;
+            $reporteHE =  $obj->idReporte;
+            $motivo =  $obj->motivo;
+
+            $Subject = 'Rechazo de Horas Extra por ' . $empleado;
+            $body = 'Buen dia, Las Horas Extra con el número ' . $reporteHE . ' han sido rechazados. '. $motivo .'. Este mensaje ha sido generado automáticamente.';
+
+            $result = $email->sendEmail('soporte@servimeters.net', $to, $cc, $Subject, $body);
         }
 
-        $empleado = $_POST['empleado'];
-        $reporteHE = $_POST['idReporte'];
-        $motivo = $_POST['motivo'];
-
-        $Subject = 'Rechazo de Horas Extra por ' . $empleado;
-        $body = 'Buen dia, Las Horas Extra con el número ' . $reporteHE . ' han sido rechazados. '. $motivo .'. Este mensaje ha sido generado automáticamente.';
-
-        $result = $email->sendEmail('soporte@servimeters.net', $to, $cc, $Subject, $body);
         echo $result;
         exit();
 
         break;
     case 'aprobacionHE':
+        $result = '';
+
+        $datas = $_POST["data"];
+        foreach ($datas as $data){
+            $obj = json_decode($data);
+            $to = $obj->to;
+            $from = $obj->from;
+            $reporteHE =  $obj->idReporte;
+
+            $Subject = 'Aprobación de Horas Extra';
+            $body = 'Buen dia, Las Horas Extra con el número ' . $reporteHE . ' han sido aprobadas. Este mensaje ha sido generado automáticamente.';
+
+            $result = $email->sendEmail('soporte@servimeters.net', $to, $from, $Subject, $body);
+        }
+        echo $result;
+        exit();
+        break;
+    case 'aprobacionMasiva':
         $to = $_POST['to'];
         $from = $_POST['from'];
 
-        $empleado = $_POST['empleado'];
-        $reporteHE = $_POST['idReporte'];
+        $Subject = 'Horas Extra aprobadas';
+        $body = 'Buen dia, el usuario ' . $from . ' ha aprobado un lote de Horas Extra, por favor validar. Este mensaje ha sido generado automáticamente.';
 
-        $Subject = 'Aprobación de Horas Extra para ' . $empleado;
-        $body = 'Buen dia, Las Horas Extra con el número ' . $reporteHE . ' han sido aprobadas. Este mensaje ha sido generado automáticamente.';
+        $result = $email->sendEmail('soporte@servimeters.net', 'bautistawilliam961@gmail.com', 'bautistawilliam961@gmail.com', $Subject, $body);
+        echo $result;
+        exit();
+        break;
+    case 'rechazoMasivo':
+        $to = $_POST['to'];
+        $from = $_POST['from'];
+        $motivo = $_POST['motivo'];
 
-        $result = $email->sendEmail('soporte@servimeters.net', $to, $from, $Subject, $body);
+        $Subject = 'Horas Extra rechazadas';
+        $body = 'Buen dia, el usuario ' . $from . ' ha rechazado un lote de Horas Extra. Motivo: '. $motivo .'. Este mensaje ha sido generado automáticamente.';
+
+        $result = $email->sendEmail('soporte@servimeters.net', 'bautistawilliam961@gmail.com', 'bautistawilliam961@gmail.com', $Subject, $body);
         echo $result;
         exit();
         break;

@@ -19,7 +19,7 @@ if (!isset($_POST['id'])) {
 		</header>
 
 		<section class="col-12 col-4-medium col-12-xsmall">
-			<h3 style="float: left; color: white;">Comentarios:</h3>
+			<h3 style="float: left; color: white;">Comentarios: <span id="seeComments" class="icon solid fa-chevron-down fit"></span> <span id="hideComments" class="icon solid fa-chevron-up fit" style="display: none;"></span></h3>
 			<table>
 				<tbody id="bodyComments">
 					<!-- Llenar tabla -->

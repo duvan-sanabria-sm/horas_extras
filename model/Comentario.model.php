@@ -20,10 +20,12 @@ class Comentario{
     }
 
     public function insert($object){
-        if (isset($object["idReporteHE"])) {
+        if (!isset($object["idReportesHE"])) {
+            return false;
+        }
             $this->fecha = $object["fecha"];
             $this->cuerpo = $object["cuerpo"];
-            $this->idReporteHE = $object["idReporteHE"];
+            $reportes = json_decode($object["idReportesHE"]);
             $this->creadoPor = $object["creadoPor"];
             $this->sql = "INSERT INTO dbo.Comentarios (fecha, cuerpo, id_reporte, creadoPor) VALUES (:fecha, :cuerpo, :idReporteHE, :creadoPor)";
             
@@ -31,15 +33,15 @@ class Comentario{
             $this->result = $this->connection->prepare($this->sql);
             $this->result->bindParam(':fecha' , $this->fecha);
             $this->result->bindParam(':cuerpo' , $this->cuerpo);
-            $this->result->bindParam(':idReporteHE' , $this->idReporteHE);
             $this->result->bindParam(':creadoPor' , $this->creadoPor);
+
+        foreach($reportes as $reporte){
+            $this->idReporteHE = $reporte;
+            $this->result->bindParam(':idReporteHE' , $this->idReporteHE);
             $this->result->execute();
-            $this->connection->commit();
-            
-            echo $this->connection->lastInsertId();
         }
-        
-        return false;
+            $this->connection->commit();
+            echo $this->connection->lastInsertId();
     }
 
     public function delete(){}

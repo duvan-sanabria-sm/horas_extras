@@ -31,12 +31,42 @@ class TemplateReport
         return $this->result->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function detalleHoras_2($fechaInicio, $fechaFin){
+
+        $this->fechaInicio = $fechaInicio;
+        $this->fechaFin = $fechaFin;
+
+        $this->sql = "EXEC DETALLEHORAS_2 :fechaInicio, :fechaFin";
+        $this->result = $this->connection->prepare($this->sql);
+
+        $this->result->bindParam(':fechaInicio', $this->fechaInicio, PDO::PARAM_STR);
+        $this->result->bindParam(':fechaFin', $this->fechaFin, PDO::PARAM_STR);
+
+        $this->result->execute();
+        return $this->result->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function detalleReporte($fechaInicio, $fechaFin){
 
         $this->fechaInicio = $fechaInicio;
         $this->fechaFin = $fechaFin;
 
         $this->sql = "EXEC DETALLERECARGOS :fechaInicio, :fechaFin";
+        $this->result = $this->connection->prepare($this->sql);
+
+        $this->result->bindParam(':fechaInicio', $this->fechaInicio, PDO::PARAM_STR);
+        $this->result->bindParam(':fechaFin', $this->fechaFin, PDO::PARAM_STR);
+
+        $this->result->execute();
+        return $this->result->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function detalleReporte_2($fechaInicio, $fechaFin){
+
+        $this->fechaInicio = $fechaInicio;
+        $this->fechaFin = $fechaFin;
+
+        $this->sql = "EXEC DETALLERECARGOS_2 :fechaInicio, :fechaFin";
         $this->result = $this->connection->prepare($this->sql);
 
         $this->result->bindParam(':fechaInicio', $this->fechaInicio, PDO::PARAM_STR);

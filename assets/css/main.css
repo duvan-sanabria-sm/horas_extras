@@ -47,7 +47,6 @@ blockquote, q {
 	}
 
 table {
-	border-collapse: collapse;
 	border-spacing: 0;
 }
 
@@ -58,6 +57,7 @@ body {
 * {
 	scrollbar-width: thin;
 	scrollbar-color: #1d1e26 white;
+	scroll-behavior: smooth;
   }
   
   /* Works on Chrome, Edge, and Safari */
@@ -839,6 +839,12 @@ th.sorting {
 				width: 100% !important;
 			}
 
+		}
+
+		.summaryContainer{
+			margin: 0 auto;
+			max-width: calc(100% - 4em);
+			width: 100em;
 		}
 
 /* Row */
@@ -2445,6 +2451,10 @@ th.sorting {
 			display: none;
 		}
 
+		select#listAprobador {
+			text-align: center;
+		}
+
 	input[type="text"],
 	input[type="number"],
 	input[type="month"],
@@ -2553,6 +2563,10 @@ th.sorting {
 	:-ms-input-placeholder {
 		color: rgba(255, 255, 255, 0.5) !important;
 		opacity: 1.0;
+	}
+
+	.fieldReport{
+		font-size: 1em !important;
 	}
 
 /* Box */
@@ -2671,6 +2685,14 @@ th.sorting {
 				.icon.major.alt:before {
 					color: #272833 !important;
 					text-shadow: 1px 0 0 #ffffff, -1px 0 0 #ffffff, 0 1px 0 #ffffff, 0 -1px 0 #ffffff;
+				}
+
+				span.saveAdmin {
+					color: #3c763d;
+				}
+
+				span.saveAdmin:hover {
+					zoom: 1.3;
 				}
 
 
@@ -3002,8 +3024,36 @@ th.sorting {
 			}
 
 			#summaries{
-				border: 0.5px solid;
+				box-shadow: 0px 5px 19px -4px rgb(0 0 0 / 84%);
 			}
+
+			#encTableHE th{
+				border: 1px solid black;
+			}
+
+			.tableSummary{
+				font-size: 14px;
+			}
+
+			.tableSummary thead {
+				background-color: white;
+                box-shadow: -4px 1px 12px 3px rgb(0 0 0 / 84%);
+				font-size: 11px;
+			}
+
+			.tableStatus thead {
+				position: sticky;
+				top: 0px;
+				background-color: white;
+				z-index: 1;
+				box-shadow: 0px 5px 19px -4px rgb(0 0 0 / 84%);
+				font-size: 12px;
+			}
+
+			.dataTables_scrollBody{
+				scroll-behavior: auto;
+			}
+
 
 /* Button */
 
@@ -3119,6 +3169,11 @@ th.sorting {
 		}
 
 /* Goto Next */
+
+	.goTo{
+		font-size: 2em;
+		border: 0;
+	}
 
 	.goto-next {
 		border: 0;
@@ -3739,7 +3794,7 @@ th.sorting {
 
 	#footer {
 		background: #272833;
-		padding: 6em 0;
+		padding: 3em 0;
 		text-align: center;
 	}
 

@@ -29,7 +29,7 @@ $(document).ready(function () {
                                 <option value="Si" ${element.esAdmin === 'Si' ? 'selected="selected"' : ''}>Si</option>                        
                             </select> 
                         </td>
-                         <td> <span data-id="${element.id}" class="updateAprobador icon solid fa-check-circle fi"></span> </td>
+                         <td> <span data-id="${element.id}" class="updateAprobador icon solid fa-check-circle fi saveAdmin"></span> </td>
                         </tr>`;
             });
 
