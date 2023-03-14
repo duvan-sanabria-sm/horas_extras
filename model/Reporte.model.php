@@ -47,11 +47,15 @@ class Reporte
         $this->correoEmpleado = $object["correoEmpleado"];
         $this->cc = $object["cc"];
         $this->cargo = $object["cargo"];
+        $this->motivoGeneral = $object["proyecto"];
+        if (empty($this->motivoGeneral)){
+            $this->motivoGeneral = NULL;
+        }
         $this->fechaInicio = $object["fechaInicio"];
         $this->fechaFin = $object["fechaFin"];
 
 
-        $this->sql = "INSERT INTO dbo.ReportesHE (id_estado, id_ceco, total, id_aprobador, empleado, correoEmpleado, cc, cargo, fechaInicio, fechaFin) VALUES (:id_estado, :id_ceco, :total, :id_aprobador, :empleado, :correoEmpleado, :cc, :cargo, :fechaInicio, :fechaFin)";
+        $this->sql = "INSERT INTO dbo.ReportesHE (id_estado, id_ceco, total, id_aprobador, empleado, correoEmpleado, cc, cargo, motivoGeneral, fechaInicio, fechaFin) VALUES (:id_estado, :id_ceco, :total, :id_aprobador, :empleado, :correoEmpleado, :cc, :cargo, :motivoGeneral, :fechaInicio, :fechaFin)";
         $this->connection->beginTransaction();
         $this->result = $this->connection->prepare($this->sql);
 
@@ -63,6 +67,7 @@ class Reporte
         $this->result->bindParam(':correoEmpleado' , $this->correoEmpleado);
         $this->result->bindParam(':cc' , $this->cc);
         $this->result->bindParam(':cargo' , $this->cargo);
+        $this->result->bindParam(':motivoGeneral' , $this->motivoGeneral);
         $this->result->bindParam(':fechaInicio' , $this->fechaInicio);
         $this->result->bindParam(':fechaFin' , $this->fechaFin);
 
@@ -90,12 +95,16 @@ class Reporte
         }
         $this->cc = $object["cc"];
         $this->cargo = $object["cargo"];
+        $this->motivoGeneral = $object["proyecto"];
+        if (empty($this->motivoGeneral)){
+            $this->motivoGeneral = NULL;
+        }
         $this->correoEmpleado = $object["correoEmpleado"];
         $this->fechaInicio = $object["fechaInicio"];
         $this->fechaFin = $object["fechaFin"];
 
 
-        $this->sql = "UPDATE dbo.ReportesHE SET id_estado = :id_estado, id_ceco = :id_ceco, total = :total, id_aprobador = :id_aprobador, cc = :cc, cargo = :cargo, fechaInicio = :fechaInicio, fechaFin = :fechaFin, correoEmpleado = :correoEmpleado WHERE id = :id";
+        $this->sql = "UPDATE dbo.ReportesHE SET id_estado = :id_estado, id_ceco = :id_ceco, total = :total, id_aprobador = :id_aprobador, cc = :cc, cargo = :cargo, motivoGeneral = :motivoGeneral, fechaInicio = :fechaInicio, fechaFin = :fechaFin, correoEmpleado = :correoEmpleado WHERE id = :id";
         $this->result = $this->connection->prepare($this->sql);
 
         $this->result->bindParam(':id' , $this->id);
@@ -105,6 +114,7 @@ class Reporte
         $this->result->bindParam(':id_aprobador' , $this->id_aprobador);
         $this->result->bindParam(':cc' , $this->cc);
         $this->result->bindParam(':cargo' , $this->cargo);
+        $this->result->bindParam(':motivoGeneral' , $this->motivoGeneral);
         $this->result->bindParam(':correoEmpleado' , $this->correoEmpleado);
         $this->result->bindParam(':fechaInicio' , $this->fechaInicio);
         $this->result->bindParam(':fechaFin' , $this->fechaFin);
@@ -217,6 +227,33 @@ class Reporte
             throw $th;
         }
 
+    }
+
+    function updateProyecto($object){
+        try {
+            if (!$object["reportes"]) {
+                return false;
+            }
+
+            $reportes = json_decode($object["reportes"]);
+
+            $this->motivoGeneral = trim($object["proyecto"]);
+
+            $this->sql = 'UPDATE dbo.ReportesHE SET motivoGeneral = :motivoGeneral WHERE id = :id AND motivoGeneral IS NULL';
+            $this->result = $this->connection->prepare($this->sql);
+            $this->result->bindParam(':motivoGeneral' , $this->motivoGeneral);
+
+            foreach($reportes as $reporte){
+                $this->id = $reporte;
+                $this->result->bindParam(':id' , $this->id);
+                $this->result->execute();
+            }
+
+            return true;
+        } catch (\Throwable $th) {
+            return false;
+            throw $th;
+        }
     }
 
 }

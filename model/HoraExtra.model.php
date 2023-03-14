@@ -6,6 +6,7 @@ class HoraExtra{
     private $result;
     private $connection;
     private $db;
+    private $config;
 
     private $id;
     private $id_reporteHE;
@@ -16,8 +17,10 @@ class HoraExtra{
 
     function __construct(){
         require_once "../config/DB.config.php";
+        require_once "../config/LoadConfig.config.php";
         $this->db = new DB();
         $this->connection = $this->db->Conectar();
+        $this->config = LoadConfig::getConfig();
     }
 
     public function insert($data){
@@ -230,7 +233,7 @@ class HoraExtra{
         $this->aprobador = trim($object["aprobador"]);
         //'SELECT H.*, A.nombre AS aprobadorNombre, A.tipo AS aprobadorTipo, A.correo AS correoJefe, E.nombre AS estadoNombre, C.titulo As cecoName FROM dbo.HoraExtra H INNER JOIN dbo.Aprobador A ON H.aprobador = A.id INNER JOIN dbo.estado E ON H.estado = E.id INNER JOIN dbo.Centro_Costos C ON H.ceco = C.id WHERE H.aprobador = :aprobador AND H.estado IN (1002, 1003)'
 
-        $this->sql = 'SELECT R.*, A.nombre AS aprobadorNombre, A.tipo AS aprobadorTipo, A.correo AS correoJefe, E.nombre AS estadoNombre, C.titulo AS cecoName, L.titulo AS claseName FROM ReportesHE R INNER JOIN Aprobadores A ON R.id_aprobador = A.id INNER JOIN Estados E ON R.id_estado = E.id LEFT JOIN CentrosCosto C ON R.id_ceco = C.id LEFT JOIN Clase L ON C.id_clase = L.id WHERE R.id_aprobador = :aprobador AND R.id_estado IN (3, 5, 6, 8, 10)';
+        $this->sql = 'SELECT R.*, A.nombre AS aprobadorNombre, A.tipo AS aprobadorTipo, A.correo AS correoJefe, E.nombre AS estadoNombre, C.titulo AS cecoName, L.titulo AS claseName FROM ReportesHE R INNER JOIN Aprobadores A ON R.id_aprobador = A.id INNER JOIN Estados E ON R.id_estado = E.id LEFT JOIN CentrosCosto C ON R.id_ceco = C.id LEFT JOIN Clase L ON C.id_clase = L.id WHERE R.id_aprobador = :aprobador AND R.id_estado IN ('.$this->config['APROBACION_JEFE'].','.$this->config['APROBACION_GERENTE'].','.$this->config['RECHAZO_GERENTE'].','.$this->config['RECHAZO_RH'].','.$this->config['RECHAZO_CONTABLE'].')';
         $this->result = $this->connection->prepare($this->sql);
         $this->result->bindParam(':aprobador' , $this->aprobador);
         $this->result->execute();
@@ -241,7 +244,7 @@ class HoraExtra{
 
     public function getListHEGestionRH(){
 
-        $this->sql = 'SELECT R.*, A.nombre AS aprobadorNombre, A.tipo AS aprobadorTipo, A.correo AS correoJefe, E.nombre AS estadoNombre, C.titulo AS cecoName, L.titulo AS claseName FROM ReportesHE R INNER JOIN Aprobadores A ON R.id_aprobador = A.id INNER JOIN Estados E ON R.id_estado = E.id LEFT JOIN CentrosCosto C ON R.id_ceco = C.id LEFT JOIN Clase L ON C.id_clase = L.id WHERE R.id_estado IN (7)';
+        $this->sql = 'SELECT R.*, A.nombre AS aprobadorNombre, A.tipo AS aprobadorTipo, A.correo AS correoJefe, E.nombre AS estadoNombre, C.titulo AS cecoName, L.titulo AS claseName FROM ReportesHE R INNER JOIN Aprobadores A ON R.id_aprobador = A.id INNER JOIN Estados E ON R.id_estado = E.id LEFT JOIN CentrosCosto C ON R.id_ceco = C.id LEFT JOIN Clase L ON C.id_clase = L.id WHERE R.id_estado IN ('.$this->config['APROBACION_RH'].')';
         $this->result = $this->connection->prepare($this->sql);
         $this->result->execute();
 
@@ -251,7 +254,7 @@ class HoraExtra{
 
     public function getListHEGestionContable($object){
 
-        $this->sql = 'SELECT R.*, A.nombre AS aprobadorNombre, A.tipo AS aprobadorTipo, A.correo AS correoJefe, E.nombre AS estadoNombre, C.titulo AS cecoName, L.titulo AS claseName FROM ReportesHE R INNER JOIN Aprobadores A ON R.id_aprobador = A.id INNER JOIN Estados E ON R.id_estado = E.id LEFT JOIN CentrosCosto C ON R.id_ceco = C.id LEFT JOIN Clase L ON C.id_clase = L.id WHERE R.id_estado IN (9)';
+        $this->sql = 'SELECT R.*, A.nombre AS aprobadorNombre, A.tipo AS aprobadorTipo, A.correo AS correoJefe, E.nombre AS estadoNombre, C.titulo AS cecoName, L.titulo AS claseName FROM ReportesHE R INNER JOIN Aprobadores A ON R.id_aprobador = A.id INNER JOIN Estados E ON R.id_estado = E.id LEFT JOIN CentrosCosto C ON R.id_ceco = C.id LEFT JOIN Clase L ON C.id_clase = L.id WHERE R.id_estado IN ('.$this->config['APROBACION_CONTABLE'].')';
         $this->result = $this->connection->prepare($this->sql);
         $this->result->execute();
 

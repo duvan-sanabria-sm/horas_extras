@@ -1,5 +1,5 @@
-$(document).ready(function(e) {
-    console.log('Ready List'); 
+$(document).ready(async function(e) {
+    config = await loadConfig();
 
     const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
@@ -117,7 +117,7 @@ function editar() {
         
         $.when($.ajax({data: data, url: './estado/editarHE.view.php', type: 'post'}), $.ajax('./reportar/index.view.php'), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=getCantHorasExtraByReport', type: 'post'}), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=Recargo&crud=getCantRecargosByReport', type: 'post'}), $.ajax({data: object, url: '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=getHorasExtraByReport', type: 'post'}))
         .then(function (result1, result2, result3, result4, result5) {
-            if (data.id_estado !== '1002'){
+            if (data.id_estado !== config.EDICION.toString()){
                 $('#links').append(script_two, style);
             }
 
@@ -176,7 +176,7 @@ function editar() {
 
             setTimeout(async ()=> {
 
-                if (data.id_estado == '2'){
+                if (data.id_estado == config.RECHAZO.toString()){
                     if (data.aprobadorTipo == 'Jefe') {
                         $("#jefe").prop("checked", true);
                         $('#listJefe').attr('disabled', false);
@@ -200,7 +200,7 @@ function editar() {
                         localStorage.setItem('aprobador', aprobador);
                         localStorage.setItem('TipoAprobador', 'Gerente');
                     }
-                }else if (data.id_estado == '8' || data.id_estado == '10'){
+                }else if (data.id_estado == config.RECHAZO_RH.toString() || data.id_estado == config.RECHAZO_CONTABLE.toString()){
                     $("#jefe").attr("disabled", true);
                     $('#listJefe').attr('disabled', true);
                     $("#gerente").attr("disabled", true);
@@ -215,7 +215,7 @@ function editar() {
                     }else if (data.estado == '1007'){
                         localStorage.setItem('TipoAprobador', 'rh');
                     }
-                }else if (data.id_estado == '1002'){
+                }else if (data.id_estado == config.EDICION.toString()){
                     localStorage.setItem('correoAprobador', '');
                     localStorage.setItem('aprobador', '');
                     localStorage.setItem('TipoAprobador', '');

@@ -19,6 +19,7 @@
                     <li>
                         <a href="#" id="admin">Administrar</a>
 						<ul>
+                            <li><a href="#" onclick="adminClase(event)">Clase</a></li>
                             <li><a href="#" onclick="adminCECO(event)">Centros de Costo</a></li>
 							<li><a href="#" onclick="adminAprobadores(event)">Aprobadores</a></li>
 							<li><a href="#">Tipos de Recargo</a></li>

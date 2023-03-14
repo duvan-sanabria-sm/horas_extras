@@ -1,11 +1,12 @@
-$(document).ready(function(e) {
+$(document).ready(async function(e) {
+    config = await loadConfig();
+    console.log(config);
 
     selectAprobador();
     sumDescuento();
     setDataAprobador();
     sendData();
     showHelp();
-
 
     $.notify.defaults({ className: "info" });
 
@@ -41,6 +42,7 @@ $(document).ready(function(e) {
 
     $.when($.ajax('../controller/CRUD.controller.php?action=listAll&model=CentroCosto&crud=get'), $.ajax('../controller/CRUD.controller.php?action=listAll&model=TipoHE&crud=get'), $.ajax('../controller/CRUD.controller.php?action=listAll&model=TipoRecargo&crud=get'), $.ajax('../controller/CRUD.controller.php?action=listAll&model=Aprobador&crud=get'))
     .then(function (result1, result2, result3, result4) {
+        console.log(result1[0]);
         // Cargar CECOS
         cargarLista(result1[0], 'ceco');
 
@@ -253,7 +255,7 @@ function sumValuesHE() {
         if (!isNaN(valorHE)) {
             suma += parseFloat(valorHE);
             colorSum(suma, 'calcHE');
-            if (suma > 48) {
+            if (suma > config.LIMIT_HE) {
                 suma -= parseFloat(valorHE);
                 $(this).val(0);
                 setTimeout(()=>{
@@ -402,6 +404,7 @@ function sendData() {
         var ceco = $('#ceco').children("option:selected").val();
         var total = $('#total').html();
         var empleado = $('#cc').data('empleado');
+        var proyecto = $('#proyecto').val();
         //***************
 
         if (cc.length <= 0 || empleado.length <= 0 || cargo.length <= 0) {
@@ -418,6 +421,10 @@ function sendData() {
 
         if (ceco.length <= 0){
             ceco = null;
+        }
+
+        if (proyecto.length <= 0){
+            proyecto = null;
         }
 
         var fechas = getFechas();
@@ -476,6 +483,7 @@ function sendData() {
                 'correoEmpleado': correoEmpleado,
                 'cc': cc,
                 'cargo': cargo,
+                'proyecto': proyecto,
                 'fechaInicio': fechas[2],
                 'fechaFin': fechas[1]
             }
@@ -548,7 +556,7 @@ function sendData() {
                         $("#tableHE").addClass("sectionDisabled");
                         $.notify('Enviado con exito', 'success');
 
-                        if (estado === 1002){
+                        if (estado === config.EDICION){
                             $('#butonSend').css({display: 'inline'});
                             $('#loadSpinner').css({display: 'none'});
                             return true;
@@ -653,7 +661,7 @@ function sendData() {
 
                                 $('#result').html(result1);
 
-                                if (estado === 1002){
+                                if (estado === config.EDICION){
                                     return true;
                                 }
 
@@ -879,15 +887,15 @@ function getEstado() {
     var estado;
     
     if(tipoAprobador == 'Jefe'){
-        estado = 3;
+        estado = config.APROBACION_JEFE;
     }else if (tipoAprobador == 'Gerente') {
-        estado = 5;
+        estado = config.APROBACION_GERENTE;
     }else if (tipoAprobador == 'contable'){
-        estado = 9;
+        estado = config.APROBACION_CONTABLE;
     }else if (tipoAprobador == 'rh'){
-        estado = 7;
+        estado = config.APROBACION_RH;
     }else{
-        estado = 1002;
+        estado = config.EDICION;
     }
 
     return estado;

@@ -9,6 +9,7 @@ class CentroCosto{
 
     private $id;
     private $titulo;
+    private $clase;
 
     function __construct(){
         require_once "../config/DB.config.php";
@@ -22,18 +23,23 @@ class CentroCosto{
         }
 
         try {
-            if (isset($object["titulo"])) {
-                $this->titulo = $object["titulo"];
-                $this->sql = "INSERT INTO dbo.CentrosCosto (titulo) VALUES (:titulo)";
-
-                $this->connection->beginTransaction();
-                $this->result = $this->connection->prepare($this->sql);
-                $this->result->bindParam(':titulo' , $this->titulo);
-                $this->result->execute();
-                $this->connection->commit();
-
-                echo $this->connection->lastInsertId();
+            if (!isset($object["titulo"])) {
+                return false;
             }
+
+            $this->titulo = $object["titulo"];
+            $this->clase = $object["clase"];
+            $this->sql = "INSERT INTO dbo.CentrosCosto (titulo, id_clase) VALUES (:titulo, :clase)";
+
+            $this->connection->beginTransaction();
+            $this->result = $this->connection->prepare($this->sql);
+            $this->result->bindParam(':titulo' , $this->titulo);
+            $this->result->bindParam(':clase' , $this->clase);
+            $this->result->execute();
+            $this->connection->commit();
+
+            echo $this->connection->lastInsertId();
+
         }catch (\Throwable $th) {
             return false;
             throw $th;
@@ -69,11 +75,14 @@ class CentroCosto{
 
             $this->id = $object["id"];
             $this->titulo = $object["titulo"];
-            $this->sql = "UPDATE dbo.CentrosCosto SET titulo = :titulo WHERE id = :id";
+            $this->clase = $object["clase"];
+
+            $this->sql = "UPDATE dbo.CentrosCosto SET titulo = :titulo, id_clase = :clase WHERE id = :id";
             $this->result = $this->connection->prepare($this->sql);
 
             $this->result->bindParam(':id' , $this->id);
             $this->result->bindParam(':titulo' , $this->titulo);
+            $this->result->bindParam(':clase' , $this->clase);
             $this->result->execute();
 
             return true;

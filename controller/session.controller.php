@@ -1,6 +1,8 @@
 <?php
 
 require_once('../config/Session.config.php');
+require_once "../config/LoadConfig.config.php";
+$config = LoadConfig::getConfig();
 
 $session = new Sesion();
 
@@ -28,7 +30,7 @@ switch ($_GET['action']) {
     case 'finish':
         session_start();
         session_destroy();
-        header('Location:http://localhost/HorasExtra/');
+        header('Location:'.$config['URL_SITE']);
         break;
     case 'validateRole':
         validateRole();

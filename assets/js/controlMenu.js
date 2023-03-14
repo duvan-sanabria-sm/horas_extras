@@ -1,6 +1,5 @@
+let config;
 $(document).ready(function(e) {
-    console.log('Ready Control Menu');
-    
     removeClass();
     reportar();
     estado();
@@ -151,6 +150,26 @@ function reporte(e){
             $('#links').append(script);
             gestionContable.addClass('menuSelect');
             gestionContable.css('pointer-events', 'auto');
+            $('#result').html(result);
+            $(this).prop('disabled', false);
+        })
+}
+
+function adminClase(e) {
+    e.preventDefault();
+    $(this).prop('disabled', true);
+
+    var adminCeco = $('#admin');
+    adminCeco.css('pointer-events', 'none');
+    var script = "<script src=\"../assets/js/admin/claseAdmin.js\"></script>";
+
+    $.when($.ajax('./admin/clase.view.php'))
+        .then(function(result) {
+
+            //Cargar HTML
+            $('#links').append(script);
+            adminCeco.addClass('menuSelect');
+            adminCeco.css('pointer-events', 'auto');
             $('#result').html(result);
             $(this).prop('disabled', false);
         })

@@ -1,7 +1,9 @@
 <?php 
     session_start();
     if (!isset($_SESSION["estadoAutentica"])) {
-        header('Location:http://localhost/HorasExtra/view/');
+        require_once "../../config/LoadConfig.config.php";
+        $config = LoadConfig::getConfig();
+        header('Location:'.$config['URL_SITE'].'index.php');
     }
 ?>
 
