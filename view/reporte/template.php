@@ -38,7 +38,7 @@ try {
                 <td>".date('d-m-Y', strtotime($fechaFin))."</td>
                 <td>".$documentoSoporte."</td>
                 <td>0</td>
-                <td>2</td>
+                <td>4</td>
                 <td></td>
                 <td></td>";
         $numero = $items["cantidad"];
@@ -71,7 +71,7 @@ try {
                 <td>".date('d-m-Y', strtotime($fechaFin))."</td>
                 <td>".$documentoSoporte."</td>
                 <td>0</td>
-                <td>2</td>
+                <td>4</td>
                 <td></td>
                 <td></td>";
         $numero = $itemsRec["cantidad"];
