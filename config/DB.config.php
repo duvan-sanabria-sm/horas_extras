@@ -14,8 +14,8 @@ class DB {
 
         try {
             
-            $DNS = "sqlsrv:server=".$this->config['SERVER_DB'].";database=".$this->config['DATABASE'];
-            $this->conexion = new PDO($DNS, $this->config['USER_DB'], $this->config['PASS_DB']);
+            $DNS = "sqlsrv:server=".$this->config->SERVER_DB.";database=".$this->config->DATABASE;
+            $this->conexion = new PDO($DNS, $this->config->USER_DB, $this->config->PASS_DB);
 
             return $this->conexion;
 

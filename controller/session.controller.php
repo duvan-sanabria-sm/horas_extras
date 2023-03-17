@@ -30,7 +30,7 @@ switch ($_GET['action']) {
     case 'finish':
         session_start();
         session_destroy();
-        header('Location:'.$config['URL_SITE']);
+        header('Location:'.$config->URL_SITE);
         break;
     case 'validateRole':
         validateRole();

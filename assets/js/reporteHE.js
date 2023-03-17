@@ -1,6 +1,5 @@
 $(document).ready(async function(e) {
     config = await loadConfig();
-    console.log(config);
 
     selectAprobador();
     sumDescuento();
@@ -42,7 +41,6 @@ $(document).ready(async function(e) {
 
     $.when($.ajax('../controller/CRUD.controller.php?action=listAll&model=CentroCosto&crud=get'), $.ajax('../controller/CRUD.controller.php?action=listAll&model=TipoHE&crud=get'), $.ajax('../controller/CRUD.controller.php?action=listAll&model=TipoRecargo&crud=get'), $.ajax('../controller/CRUD.controller.php?action=listAll&model=Aprobador&crud=get'))
     .then(function (result1, result2, result3, result4) {
-        console.log(result1[0]);
         // Cargar CECOS
         cargarLista(result1[0], 'ceco');
 
@@ -747,8 +745,6 @@ function getFechas(){
     }else{
         fechas[1] = fecha.getFullYear() + '-' + (fecha.getMonth() + 1)  + '-' + fecha.getDate();
     }
-
-    console.log('Fechas ...', fechas);
 
     return fechas;
 }

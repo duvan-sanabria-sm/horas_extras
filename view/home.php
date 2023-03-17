@@ -71,6 +71,7 @@ if (!isset($_SESSION["estadoAutentica"])) {
         <script src="../assets/js/dataTables.responsive.min.js"></script>
         <script src="../assets/js/dataTables.scroller.min.js"></script>
         <script src="../assets/js/sweetalert.min.js"></script>
+        <script src="../assets/js/crypto-js.min.js"></script>
         <script src="../assets/js/config/configLoad.js"></script>
 
         <?php include_once('./shared/footer.php') ?>

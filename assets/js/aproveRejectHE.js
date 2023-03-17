@@ -1,7 +1,6 @@
 $(document).ready(async function(){
     config = await loadConfig();
     let typeGestion = $('#typeGestion').data('type');
-    console.log('Tipo de Gestion', typeGestion);
     let url;
 
     switch (typeGestion) {

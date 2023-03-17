@@ -22,16 +22,16 @@ class Email{
         try{
             $this->correo->SMTPDebug=0;
             $this->correo->isSMTP();
-            $this->correo->Host= $this->config['HOST_EMAIL'];
+            $this->correo->Host= $this->config->HOST_EMAIL;
             $this->correo->SMTPAuth=true;
-            $this->correo->Username=$this->config['USERNAME_EMAIL'];
-            $this->correo->Password= $this->config['PASS_EMAIL'];
+            $this->correo->Username=$this->config->USERNAME_EMAIL;
+            $this->correo->Password= $this->config->PASS_EMAIL;
             $this->correo->SMTPSecure="tls";
-            $this->correo->Port=$this->config['PORT_EMAIL'];
+            $this->correo->Port=$this->config->PORT_EMAIL;
         
-            $this->correo->setFrom($this->config['FROM_EMAIL'],"Solicitud de Horas Extra");
+            $this->correo->setFrom($this->config->FROM_EMAIL,"Solicitud de Horas Extra");
             $this->correo->addAddress($to);
-            $this->correo->addAddress($this->config['FROM_EMAIL']);
+            $this->correo->addAddress($this->config->FROM_EMAIL);
             $this->correo->addCC($cc);
             $this->correo->isHTML(true);
             $this->correo->Subject=$subject;
