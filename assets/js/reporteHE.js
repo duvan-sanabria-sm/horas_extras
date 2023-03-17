@@ -1,6 +1,6 @@
 $(document).ready(async function(e) {
     config = await loadConfig();
-
+    
     selectAprobador();
     sumDescuento();
     setDataAprobador();
