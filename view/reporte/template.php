@@ -16,11 +16,11 @@ $documentoSoporte = 'Plano Horas Extras';
 $html = "<table>
         <tbody>";
 
-if (isset($_POST['fechaInicio'])){
+if (isset($_POST['fechaInicio'])) {
     $fechaInicio = $_POST['fechaInicio'];
 }
 
-if (isset($_POST['fechaFin'])){
+if (isset($_POST['fechaFin'])) {
     $fechaFin = $_POST['fechaFin'];
 }
 
@@ -31,70 +31,68 @@ try {
     foreach ($arrayHE as $items) {
         $html .= "
                 <tr>
-                <td>".$items["tipo_horaExtra"]."</td>
-                <td>".$items["cc"]."</td>
-                <td>".date('d-m-Y', strtotime($fechaInicio))."</td>
-                <td>".date('d-m-Y', strtotime($fechaFin))."</td>
-                <td>".date('d-m-Y', strtotime($fechaFin))."</td>
-                <td>".$documentoSoporte."</td>
-                <td>0</td>
-                <td>4</td>
+                <td>" . $items["tipo_horaExtra"] . "</td>
+                <td style='width: 160px;'>" . $items["cc"] . "</td>
+                <td>" . date('d-m-Y', strtotime($fechaInicio)) . "</td>
+                <td>" . date('d-m-Y', strtotime($fechaFin)) . "</td>
+                <td>" . date('d-m-Y', strtotime($fechaFin)) . "</td>
+                <td style='width: 170px;'>" . $documentoSoporte . "</td>
+                <td style='width: 160px;'>0</td>
+                <td style='width: 40px;'>4</td>
                 <td></td>
-                <td></td>";
+                <td style='width: 160px;'></td>";
         $numero = $items["cantidad"];
         $decimal_part = substr(strval($numero), -2);
         $horas = substr(strval($numero), 0, -2);
 
-        if ($decimal_part == '.5'){
+        if ($decimal_part == '.5') {
             $html .= "
-                <td>".$horas."</td>
-                <td>30</td>";
-        }else{
+                <td style='width: 45px;'>" . $horas . "</td>
+                <td style='width: 45px;'>30</td>";
+        } else {
             $html .= "
-                <td>".$horas."</td>
-                <td>0</td>";
+                <td style='width: 45px;'>" . $horas . "</td>
+                <td style='width: 45px;'>0</td>";
         }
         $html .= "
-                <td>OCASIONAL</td>
+                <td style='width: 160px;'>OCASIONAL</td>
                 ";
 
         $html .= "</tr>";
     }
 
-    foreach ($arrayRecargos as $itemsRec){
+    foreach ($arrayRecargos as $itemsRec) {
         $html .= "
                 <tr>
-                <td>".$itemsRec["tipo_recargo"]."</td>
-                <td>".$itemsRec["cc"]."</td>
-                <td>".date('d-m-Y', strtotime($fechaInicio))."</td>
-                <td>".date('d-m-Y', strtotime($fechaFin))."</td>
-                <td>".date('d-m-Y', strtotime($fechaFin))."</td>
-                <td>".$documentoSoporte."</td>
-                <td>0</td>
-                <td>4</td>
+                <td>" . $itemsRec["tipo_recargo"] . "</td>
+                <td style='width: 160px;'>" . $itemsRec["cc"] . "</td>
+                <td>" . date('d-m-Y', strtotime($fechaInicio)) . "</td>
+                <td>" . date('d-m-Y', strtotime($fechaFin)) . "</td>
+                <td>" . date('d-m-Y', strtotime($fechaFin)) . "</td>
+                <td style='width: 170px;'>" . $documentoSoporte . "</td>
+                <td style='width: 160px;'>0</td>
+                <td style='width: 40px;'>4</td>
                 <td></td>
-                <td></td>";
+                <td style='width: 160px;'></td>";
         $numero = $itemsRec["cantidad"];
         $decimal_part = substr(strval($numero), -2);
         $horas = substr(strval($numero), 0, -2);
 
-        if ($decimal_part == '.5'){
+        if ($decimal_part == '.5') {
             $html .= "
-                <td>".$horas."</td>
-                <td>30</td>";
-        }else{
+                <td style='width: 45px;'>" . $horas . "</td>
+                <td style='width: 45px;'>30</td>";
+        } else {
             $html .= "
-                <td>".$horas."</td>
-                <td>0</td>";
+                <td style='width: 45px;'>" . $horas . "</td>
+                <td style='width: 45px;'>0</td>";
         }
         $html .= "
-                <td>OCASIONAL</td>
-                ";
+                <td style='width: 160px;'>OCASIONAL</td>";
 
         $html .= "</tr>";
     }
-
-}catch (Exception $e){
+} catch (Exception $e) {
     $html .= $e;
 }
 
@@ -103,4 +101,4 @@ $html .= "</tbody>
 
 ?>
 
-<?php echo $html?>
+<?php echo $html ?>

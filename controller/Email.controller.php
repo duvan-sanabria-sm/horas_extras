@@ -16,7 +16,7 @@ switch ($_GET['email']) {
         $Subject = 'Solicitud revision de Horas Extra para ' . $empleado;
         $body = 'Buen dia, Tiene una solicitud de Horas Extra con el número ' . $reporteHE . ' pendiente por revisar. ' . '. Este mensaje ha sido generado automáticamente.';
 
-        $result = $email->sendEmail('bautistawilliam961@gmail.com' , $from, $Subject, $body);
+        $result = $email->sendEmail($to, $from, $Subject, $body);
         echo $result;
         exit();
         break;
@@ -54,13 +54,13 @@ switch ($_GET['email']) {
         $result = '';
 
         $datas = $_POST["data"];
-        foreach ($datas as $data){
+        foreach ($datas as $data) {
             $obj = json_decode($data);
             $to = $obj->to;
             $from = $obj->from;
-            if (isset($obj->cc)){
+            if (isset($obj->cc)) {
                 $cc = $obj->cc;
-            }else{
+            } else {
                 $cc = $from;
             }
             $empleado =  $obj->empleado;
@@ -68,7 +68,7 @@ switch ($_GET['email']) {
             $motivo =  $obj->motivo;
 
             $Subject = 'Rechazo de Horas Extra por ' . $empleado;
-            $body = 'Buen dia, Las Horas Extra con el número ' . $reporteHE . ' han sido rechazados. '. $motivo .'. Este mensaje ha sido generado automáticamente.';
+            $body = 'Buen dia, Las Horas Extra con el número ' . $reporteHE . ' han sido rechazados. ' . $motivo . '. Este mensaje ha sido generado automáticamente.';
 
             $result = $email->sendEmail($to, $cc, $Subject, $body);
         }
@@ -81,7 +81,7 @@ switch ($_GET['email']) {
         $result = '';
 
         $datas = $_POST["data"];
-        foreach ($datas as $data){
+        foreach ($datas as $data) {
             $obj = json_decode($data);
             $to = $obj->to;
             $from = $obj->from;
@@ -102,7 +102,7 @@ switch ($_GET['email']) {
         $Subject = 'Horas Extra aprobadas';
         $body = 'Buen dia, el usuario ' . $from . ' ha aprobado un lote de Horas Extra, por favor validar. Este mensaje ha sido generado automáticamente.';
 
-        $result = $email->sendEmail( 'bautistawilliam961@gmail.com', 'bautistawilliam961@gmail.com', $Subject, $body);
+        $result = $email->sendEmail($to, $from, $Subject, $body);
         echo $result;
         exit();
         break;
@@ -112,9 +112,9 @@ switch ($_GET['email']) {
         $motivo = $_POST['motivo'];
 
         $Subject = 'Horas Extra rechazadas';
-        $body = 'Buen dia, el usuario ' . $from . ' ha rechazado un lote de Horas Extra. Motivo: '. $motivo .'. Este mensaje ha sido generado automáticamente.';
+        $body = 'Buen dia, el usuario ' . $from . ' ha rechazado un lote de Horas Extra. Motivo: ' . $motivo . '. Este mensaje ha sido generado automáticamente.';
 
-        $result = $email->sendEmail( 'bautistawilliam961@gmail.com', 'bautistawilliam961@gmail.com', $Subject, $body);
+        $result = $email->sendEmail($to, $from, $Subject, $body);
         echo $result;
         exit();
         break;
