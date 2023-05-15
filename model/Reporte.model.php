@@ -1,5 +1,7 @@
 <?php
 
+date_default_timezone_set('America/Bogota');
+
 class Reporte
 {
     private $sql;
@@ -58,7 +60,7 @@ class Reporte
             $this->fechaFin = $object["fechaFin"];
 
 
-            $this->sql = "INSERT INTO dbo.ReportesHE (id_estado, id_ceco, total, id_aprobador, empleado, correoEmpleado, cc, cargo, motivoGeneral, fechaInicio, fechaFin) VALUES (:id_estado, :id_ceco, :total, :id_aprobador, :empleado, :correoEmpleado, :cc, :cargo, :motivoGeneral, :fechaInicio, :fechaFin)";
+            $this->sql = "INSERT INTO dbo.ReportesHE (id_estado, id_ceco, total, id_aprobador, empleado, correoEmpleado, cc, cargo, motivoGeneral, fechaInicio, fechaFin, fechaCreacion) VALUES (:id_estado, :id_ceco, :total, :id_aprobador, :empleado, :correoEmpleado, :cc, :cargo, :motivoGeneral, :fechaInicio, :fechaFin,'" . date('Y-m-d H:i:s') . "')";
             $this->connection->beginTransaction();
             $this->result = $this->connection->prepare($this->sql);
 
