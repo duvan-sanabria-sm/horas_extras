@@ -1,6 +1,7 @@
 <?php
 
-class Comentario{
+class Comentario
+{
 
     private $sql;
     private $result;
@@ -12,71 +13,91 @@ class Comentario{
     private $cuerpo;
     private $idReporteHE;
     private $creadoPor;
+    private $titulo;
 
-    function __construct(){
+    function __construct()
+    {
         require_once "../config/DB.config.php";
         $this->db = new DB();
         $this->connection = $this->db->Conectar();
     }
 
-    public function insert($object){
-        if (!isset($object["idReportesHE"])) {
-            return false;
-        }
+    public function insert($object)
+    {
+        try {
+            if (!isset($object["idReportesHE"])) {
+                return false;
+            }
             $this->fecha = $object["fecha"];
             $this->cuerpo = $object["cuerpo"];
             $reportes = json_decode($object["idReportesHE"]);
             $this->creadoPor = $object["creadoPor"];
             $this->sql = "INSERT INTO dbo.Comentarios (fecha, cuerpo, id_reporte, creadoPor) VALUES (:fecha, :cuerpo, :idReporteHE, :creadoPor)";
-            
+
             $this->connection->beginTransaction();
             $this->result = $this->connection->prepare($this->sql);
-            $this->result->bindParam(':fecha' , $this->fecha);
-            $this->result->bindParam(':cuerpo' , $this->cuerpo);
-            $this->result->bindParam(':creadoPor' , $this->creadoPor);
+            $this->result->bindParam(':fecha', $this->fecha);
+            $this->result->bindParam(':cuerpo', $this->cuerpo);
+            $this->result->bindParam(':creadoPor', $this->creadoPor);
 
-        foreach($reportes as $reporte){
-            $this->idReporteHE = $reporte;
-            $this->result->bindParam(':idReporteHE' , $this->idReporteHE);
-            $this->result->execute();
-        }
+            foreach ($reportes as $reporte) {
+                $this->idReporteHE = $reporte;
+                $this->result->bindParam(':idReporteHE', $this->idReporteHE);
+                $this->result->execute();
+            }
             $this->connection->commit();
             echo $this->connection->lastInsertId();
-    }
-
-    public function delete(){}
-
-    public function update(){}
-
-    public function getComments($object){
-        if ($object["id_reporteHE"]) {
-            $this->idReporteHE = trim($object["id_reporteHE"]);
-
-            $this->sql = 'SELECT * FROM dbo.Comentarios WHERE id_reporte = :id';
-            $this->result = $this->connection->prepare($this->sql);
-            $this->result->bindParam(':id' , $this->idReporteHE);
-            $this->result->execute();
-    
-            $json = json_encode($this->result->fetchAll(PDO::FETCH_OBJ));
-            return $json;
+        } catch (PDOException $e) {
+            echo 'Error ' . $e->getMessage();
         }
-
-        return false;
     }
 
-    public function getTitulo(){
+    public function delete()
+    {
+    }
+
+    public function update()
+    {
+    }
+
+    public function getComments($object)
+    {
+        try {
+            if ($object["id_reporteHE"]) {
+                $this->idReporteHE = trim($object["id_reporteHE"]);
+
+                $this->sql = 'SELECT * FROM dbo.Comentarios WHERE id_reporte = :id';
+                $this->result = $this->connection->prepare($this->sql);
+                $this->result->bindParam(':id', $this->idReporteHE);
+                $this->result->execute();
+
+                $json = json_encode($this->result->fetchAll(PDO::FETCH_OBJ));
+                return $json;
+            }
+
+            return false;
+        } catch (PDOException $e) {
+            echo 'Error ' . $e->getMessage();
+        }
+    }
+
+    public function getTitulo()
+    {
         return $this->titulo;
     }
 
-    public function setTitulo($value){
+    public function setTitulo($value)
+    {
         $this->titulo = $value;
     }
 
-    public function getId(){
+    public function getId()
+    {
         return $this->id;
     }
 
-    public function setId($value){
+    public function setId($value)
+    {
         $this->id = $value;
     }
 }
