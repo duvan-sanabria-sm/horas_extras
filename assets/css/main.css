@@ -221,10 +221,11 @@ th.sorting {
 	 opacity: 0.5;
  }
 
- .openDetails:hover{
+ .iconOver:hover{
 	 zoom: 1.5;
 	 transition: zoom 1s;
 	 color: #5475c7;
+	 cursor: pointer;
  }
 
  .tableAdmin, .tableAdmin th {

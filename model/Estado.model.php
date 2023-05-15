@@ -1,6 +1,7 @@
 <?php
 
-class Estado{
+class Estado
+{
 
     private $sql;
     private $result;
@@ -10,48 +11,64 @@ class Estado{
     private $id;
     private $nombre;
 
-    function __construct(){
+    function __construct()
+    {
         require_once "../config/DB.config.php";
         $this->db = new DB();
         $this->connection = $this->db->Conectar();
     }
 
-    public function insert($object){
-        if (isset($object["nombre"])) {
-            $this->nombre = $object["nombre"];
-            $this->sql = "INSERT INTO dbo.estado (nombre) VALUES (:nombre)";
-            
-            $this->connection->beginTransaction();
-            $this->result = $this->connection->prepare($this->sql);
-            $this->result->bindParam(':nombre' , $this->nombre);
-            $this->result->execute();
-            $this->connection->commit();
-            
-            echo $this->connection->lastInsertId();
+    public function insert($object)
+    {
+        try {
+            if (isset($object["nombre"])) {
+                $this->nombre = $object["nombre"];
+                $this->sql = "INSERT INTO dbo.estado (nombre) VALUES (:nombre)";
+
+                $this->connection->beginTransaction();
+                $this->result = $this->connection->prepare($this->sql);
+                $this->result->bindParam(':nombre', $this->nombre);
+                $this->result->execute();
+                $this->connection->commit();
+
+                echo $this->connection->lastInsertId();
+            }
+
+            return false;
+        } catch (PDOException $e) {
+            echo 'Error ' . $e->getMessage();
         }
-        
-        return false;
     }
 
-    public function delete(){}
+    public function delete()
+    {
+    }
 
-    public function update(){}
+    public function update()
+    {
+    }
 
-    public function get(){}
+    public function get()
+    {
+    }
 
-    public function getNombre(){
+    public function getNombre()
+    {
         return $this->nombre;
     }
 
-    public function setNombre($value){
+    public function setNombre($value)
+    {
         $this->nombre = $value;
     }
 
-    public function getId(){
+    public function getId()
+    {
         return $this->id;
     }
 
-    public function setId($value){
+    public function setId($value)
+    {
         $this->id = $value;
     }
 }

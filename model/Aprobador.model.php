@@ -1,6 +1,7 @@
 <?php
 
-class Aprobador{
+class Aprobador
+{
 
     private $sql;
     private $result;
@@ -14,48 +15,57 @@ class Aprobador{
     private $gestiona;
     private $esAdmin;
 
-    function __construct(){
+    function __construct()
+    {
         require_once "../config/DB.config.php";
         $this->db = new DB();
         $this->connection = $this->db->Conectar();
     }
 
-    public function insert($object){
-        if (!isset($object["nombre"])) {
-            return false;
-        }
+    public function insert($object)
+    {
+        try {
+            if (!isset($object["nombre"])) {
+                return false;
+            }
             $this->nombre = $object["nombre"];
             $this->correo = $object["correo"];
             $this->tipo = $object["tipo"];
             $this->gestiona = $object["gestiona"];
             $this->esAdmin = $object["esAdmin"];
             $this->sql = "INSERT INTO dbo.Aprobadores (nombre, correo, tipo, gestiona, esAdmin) VALUES (:nombre, :correo, :tipo, :gestiona, :esAdmin)";
-            
+
             $this->connection->beginTransaction();
             $this->result = $this->connection->prepare($this->sql);
-            $this->result->bindParam(':nombre' , $this->nombre);
-            $this->result->bindParam(':correo' , $this->correo);
-            $this->result->bindParam(':tipo' , $this->tipo);
-            $this->result->bindParam(':gestiona' , $this->gestiona);
-            $this->result->bindParam(':esAdmin' , $this->esAdmin);
+            $this->result->bindParam(':nombre', $this->nombre);
+            $this->result->bindParam(':correo', $this->correo);
+            $this->result->bindParam(':tipo', $this->tipo);
+            $this->result->bindParam(':gestiona', $this->gestiona);
+            $this->result->bindParam(':esAdmin', $this->esAdmin);
             $this->result->execute();
             $this->connection->commit();
-            
+
             echo $this->connection->lastInsertId();
 
-        
-        return false;
+
+            return false;
+        } catch (PDOException $e) {
+            echo 'Error ' . $e->getMessage();
+        }
     }
 
-    public function delete(){}
+    public function delete()
+    {
+    }
 
-    public function update($object){
-        if (!isset($object["id"])) {
-            return false;
-        }
+    public function update($object)
+    {
 
         try {
 
+            if (!isset($object["id"])) {
+                return false;
+            }
             $this->id = $object["id"];
             $this->nombre = $object["nombre"];
             $this->correo = $object["correo"];
@@ -66,58 +76,67 @@ class Aprobador{
             $this->sql = "UPDATE dbo.Aprobadores SET nombre = :nombre, correo = :correo, tipo = :tipo, gestiona = :gestiona, esAdmin = :esAdmin WHERE id = :id";
             $this->result = $this->connection->prepare($this->sql);
 
-            $this->result->bindParam(':id' , $this->id);
-            $this->result->bindParam(':nombre' , $this->nombre);
-            $this->result->bindParam(':correo' , $this->correo);
-            $this->result->bindParam(':tipo' , $this->tipo);
-            $this->result->bindParam(':gestiona' , $this->gestiona);
-            $this->result->bindParam(':esAdmin' , $this->esAdmin);
+            $this->result->bindParam(':id', $this->id);
+            $this->result->bindParam(':nombre', $this->nombre);
+            $this->result->bindParam(':correo', $this->correo);
+            $this->result->bindParam(':tipo', $this->tipo);
+            $this->result->bindParam(':gestiona', $this->gestiona);
+            $this->result->bindParam(':esAdmin', $this->esAdmin);
             $this->result->execute();
 
             return true;
-        } catch (\Throwable $th) {
-            return false;
-            throw $th;
+        } catch (PDOException $e) {
+            echo 'Error ' . $e->getMessage();
         }
-
     }
 
-    public function get(){
-        $this->sql = 'SELECT * FROM dbo.Aprobadores';
-        $this->result = $this->connection->prepare($this->sql);
-        $this->result->execute();
-
-        return $this->result->fetchAll(PDO::FETCH_OBJ);
-    }
-
-    public function getPermisos($logUser){
-        if (isset($logUser)) {
-            $this->nombre = trim($logUser);
-            $this->sql = 'SELECT * FROM dbo.Aprobadores WHERE nombre = :nombre';
-
+    public function get()
+    {
+        try {
+            $this->sql = 'SELECT * FROM dbo.Aprobadores';
             $this->result = $this->connection->prepare($this->sql);
-            $this->result->bindParam(':nombre' , $this->nombre);
             $this->result->execute();
 
-            $user = $this->result->fetchAll(PDO::FETCH_OBJ);
-
-            if (!empty($user)) {
-                $_SESSION["rol"] = $user[0]->tipo;
-                $_SESSION["gestion"] = $user[0]->gestiona;
-                $_SESSION["idAprobador"] = $user[0]->id;
-                $_SESSION["isAdmin"] = $user[0]->esAdmin;
-                echo $user[0]->tipo;
-            }else{
-                echo false;
-            }
-            
-            exit();
+            return $this->result->fetchAll(PDO::FETCH_OBJ);
+        } catch (PDOException $e) {
+            echo 'Error ' . $e->getMessage();
         }
-
-        return false;
     }
 
-    public function getAprobadorbyGestion($object){
+    public function getPermisos($logUser)
+    {
+        try {
+            if (isset($logUser)) {
+                $this->nombre = trim($logUser);
+                $this->sql = 'SELECT * FROM dbo.Aprobadores WHERE nombre = :nombre';
+
+                $this->result = $this->connection->prepare($this->sql);
+                $this->result->bindParam(':nombre', $this->nombre);
+                $this->result->execute();
+
+                $user = $this->result->fetchAll(PDO::FETCH_OBJ);
+
+                if (!empty($user)) {
+                    $_SESSION["rol"] = $user[0]->tipo;
+                    $_SESSION["gestion"] = $user[0]->gestiona;
+                    $_SESSION["idAprobador"] = $user[0]->id;
+                    $_SESSION["isAdmin"] = $user[0]->esAdmin;
+                    echo $user[0]->tipo;
+                } else {
+                    echo false;
+                }
+
+                exit();
+            }
+
+            return false;
+        } catch (PDOException $e) {
+            echo 'Error ' . $e->getMessage();
+        }
+    }
+
+    public function getAprobadorbyGestion($object)
+    {
         try {
             if (!$object["gestion"]) {
                 return false;
@@ -131,25 +150,28 @@ class Aprobador{
             $this->result->execute();
 
             return json_encode($this->result->fetchAll(PDO::FETCH_OBJ));
-        } catch (\Throwable $th) {
-            return false;
-            throw $th;
+        } catch (PDOException $e) {
+            echo 'Error ' . $e->getMessage();
         }
     }
 
-    public function getNombre(){
+    public function getNombre()
+    {
         return $this->nombre;
     }
 
-    public function setNombre($value){
+    public function setNombre($value)
+    {
         $this->nombre = $value;
     }
 
-    public function getId(){
+    public function getId()
+    {
         return $this->id;
     }
 
-    public function setId($value){
+    public function setId($value)
+    {
         $this->id = $value;
     }
 }

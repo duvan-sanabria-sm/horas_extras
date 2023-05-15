@@ -5,8 +5,6 @@ $(document).ready(function(e) {
     estado();
     gestionar();
     gestionRH();
-    adminCECO();
-    adminAprobadores();
 });
 
 function reportar(){
@@ -20,7 +18,8 @@ function reportar(){
         $.when($.ajax('./reportar/index.view.php'))
             .then(function (result1) {
                 // Cargar HTML Reporte
-                $('#links').append(script, style);
+                $('#links').append(style);
+                $('#links_js').append(script);
                 
                 reportar.css('pointer-events', 'auto');
                 reportar.addClass('menuSelect');
@@ -43,8 +42,8 @@ function estado() {
             .then(function(result1) {
                 
                 //Cargar HTML
-                $('#links').append(script2);
-                $('#links').append(script);
+                $('#links_js').append(script2);
+                $('#links_js').append(script);
 
                 estado.css('pointer-events', 'auto');
                 estado.addClass('menuSelect');
@@ -69,8 +68,8 @@ function gestionar() {
             .then(function(result) {
 
                 //Cargar HTML
-                $('#links').append(script);
-                $('#links').append(script2);
+                $('#links_js').append(script);
+                $('#links_js').append(script2);
                 gestionar.addClass('menuSelect');
                 gestionar.css('pointer-events', 'auto');
                 $('#result').html(result);
@@ -95,8 +94,8 @@ function gestionRH() {
             .then(function(result) {
 
                 //Cargar HTML
-                $('#links').append(script);
-                $('#links').append(script2);
+                $('#links_js').append(script);
+                $('#links_js').append(script2);
                 gestionContable.addClass('menuSelect');
                 gestionContable.css('pointer-events', 'auto');
 
@@ -122,8 +121,8 @@ function gestionContable(e) {
             .then(function(result) {
 
                 //Cargar HTML
-                $('#links').append(script);
-                $('#links').append(script2);
+                $('#links_js').append(script);
+                $('#links_js').append(script2);
                 gestionContable.addClass('menuSelect');
                 gestionContable.css('pointer-events', 'auto');
                 $('#result').html(result);
@@ -147,7 +146,7 @@ function reporte(e){
         .then(function(result) {
 
             //Cargar HTML
-            $('#links').append(script);
+            $('#links_js').append(script);
             gestionContable.addClass('menuSelect');
             gestionContable.css('pointer-events', 'auto');
             $('#result').html(result);
@@ -167,7 +166,7 @@ function adminClase(e) {
         .then(function(result) {
 
             //Cargar HTML
-            $('#links').append(script);
+            $('#links_js').append(script);
             adminCeco.addClass('menuSelect');
             adminCeco.css('pointer-events', 'auto');
             $('#result').html(result);
@@ -187,7 +186,7 @@ function adminCECO(e) {
         .then(function(result) {
 
             //Cargar HTML
-            $('#links').append(script);
+            $('#links_js').append(script);
             adminCeco.addClass('menuSelect');
             adminCeco.css('pointer-events', 'auto');
             $('#result').html(result);
@@ -207,7 +206,7 @@ function adminAprobadores(e) {
         .then(function(result) {
 
             //Cargar HTML
-            $('#links').append(script);
+            $('#links_js').append(script);
             adminCeco.addClass('menuSelect');
             adminCeco.css('pointer-events', 'auto');
             $('#result').html(result);

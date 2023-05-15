@@ -3,7 +3,7 @@ session_start();
 if (!isset($_SESSION["estadoAutentica"])) {
     require_once "../config/LoadConfig.config.php";
     $config = LoadConfig::getConfig();
-    header('Location:'.$config['URL_SITE'].'index.php');
+    header('Location:' . $config['URL_SITE'] . 'index.php');
 }
 ?>
 <!DOCTYPE html>
@@ -25,9 +25,7 @@ if (!isset($_SESSION["estadoAutentica"])) {
     <noscript>
         <link rel="stylesheet" href="../assets/css/noscript.css" />
     </noscript>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-    <script src="../assets/js/login.js"></script>
-    <script src="../assets/js/controlMenu.js"></script>
+    <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> -->
 
 </head>
 
@@ -48,13 +46,15 @@ if (!isset($_SESSION["estadoAutentica"])) {
                         <h2 style="color: white;">Plataforma - Reporte de Horas Extra</h2>
                         <p>Crea y Sigue tus Reportes de Horas Extra.</p>
                     </header>
-                    <span class="image"><img src="../images/Logo Prueba SM.webp" alt="Logo SM" /></span>
+                    <span class="image"><img src="../images/Logo Prueba SM.webp" alt="Logo SM" loading="lazy" /></span>
                 </div>
             </section>
         </div>
 
-        <script src="../assets/js/forge.min.js"></script>
         <script src="../assets/js/jquery.min.js"></script>
+        <script src="../assets/js/login.js"></script>
+        <script src="../assets/js/controlMenu.js"></script>
+        <script src="../assets/js/forge.min.js"></script>
         <script src="../assets/js/jquery.scrolly.min.js"></script>
         <script src="../assets/js/jquery.dropotron.min.js"></script>
         <script src="../assets/js/jquery.scrollex.min.js"></script>
@@ -76,6 +76,9 @@ if (!isset($_SESSION["estadoAutentica"])) {
         <script>
             forge.options.usePureJavaScript = true;
         </script>
+        <div id="links_js">
+
+        </div>
 
         <?php include_once('./shared/footer.php') ?>
 

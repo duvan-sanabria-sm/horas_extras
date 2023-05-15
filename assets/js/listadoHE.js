@@ -26,7 +26,7 @@ $(document).ready(async function(e) {
                     var anno = dato.fechaFin;
                     anno = new Date(anno);
     
-                    html += `<td>${dato.id}</td>`;
+                    html += `<td class="id">${dato.id}</td>`;
                     html += `<td>${dato.cc}</td>`;
                     html += `<td>${dato.cecoName ? dato.cecoName : 'N/A' }</td>`;
                     html += `<td>${dato.claseName ? dato.claseName : 'N/A' }</td>`;
@@ -34,8 +34,9 @@ $(document).ready(async function(e) {
                     html += `<td>${ meses[anno.getMonth()] }</td>`;
                     html += `<td>${dato.aprobadorNombre ? dato.aprobadorNombre : 'N/A' }</td>`;
                     html += `${ dato.estadoNombre.includes('Rechazado') ? '<td style="color: #e44c65; font-weight: bold;">'+ dato.estadoNombre + '</td>' : dato.estadoNombre.includes('Edicion') ? '<td style="color: #5475c7; font-weight: bold;">'+ dato.estadoNombre + '</td>' : '<td>' + dato.estadoNombre + '</td>' }`;
-                    html += `<td>${ dato.estadoNombre.includes('Rechazado') || dato.estadoNombre.includes('Edicion') ? '<a href="#" data-index="' + index + '" class="button primary small editarRegistro">Editar</a>' : '<span data-reporte="' + dato.id + '" class="openDetails icon solid fa-eye fit" id="detalle_'+ dato.id +'"></span>' } </td>`;
-    
+                    html += `<td>${ dato.estadoNombre.includes('Rechazado') || dato.estadoNombre.includes('Edicion') ? '<a href="#" data-index="' + index + '" class="button primary small editarRegistro">Editar</a>' : '<span data-reporte="' + dato.id + '" class="iconOver openDetails icon solid fa-eye fit" id="detalle_'+ dato.id +'"></span>' } </td>`;
+                    html += `<td><span class="iconOver icon solid fa-download downloadReport"></span></td>`;
+
                     html += '</tr>';
     
                 });
@@ -52,20 +53,21 @@ $(document).ready(async function(e) {
                     stateSave: true,
                 });
 
-                coloriceTable();
+                // coloriceTable();
                 editar();
+                downloadReport();
             });
 });
 
 
-function coloriceTable() {
-    $('#dataTable tbody').on('mouseenter', 'td', function () {
-        var colIdx = $('#dataTable').DataTable().cell(this).index().column;
+// function coloriceTable() {
+//     $('#dataTable tbody').on('mouseenter', 'td', function () {
+//         var colIdx = $('#dataTable').DataTable().cell(this).index().column;
 
-        $($('#dataTable').DataTable().cells().nodes()).removeClass('highlight');
-        $($('#dataTable').DataTable().column(colIdx).nodes()).addClass('highlight');
-    });
-}
+//         $($('#dataTable').DataTable().cells().nodes()).removeClass('highlight');
+//         $($('#dataTable').DataTable().column(colIdx).nodes()).addClass('highlight');
+//     });
+// }
 
 function modal() {
 
@@ -385,4 +387,30 @@ function hideComments(){
         $(`#seeComments`).css({display: 'inline'});
         $(`#hideComments`).css({display: 'none' });
     });
+}
+
+function downloadReport() {
+    $('.downloadReport').on('click', function(){
+        $(this).parents("tr").find(".id").each(function() {
+            var id = $(this).html();
+            $.ajax({
+                url: `./reporte/reportEmp.php?id=${id}`,
+                method: 'get',
+                xhrFields: {
+                    responseType: 'blob' // Indicar que la respuesta es un archivo Blob
+                },
+                success: function (response) {
+                    const blob = new Blob([response]);
+                    const url = window.URL.createObjectURL(blob);
+                    var a = document.createElement('a');
+                    a.href = url;
+                    a.setAttribute("download", `reporte_${id}.xlsx`);
+                    document.body.appendChild(a);
+                    a.click();
+                    // window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                }
+            })
+        })
+    })
 }
