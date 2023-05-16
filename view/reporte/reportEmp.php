@@ -28,13 +28,21 @@ for ($i = 0; $i < count($cols); $i++) {
     $sheet->getColumnDimensionByColumn($i + 1)->setWidth(15);
 }
 
+$row = 0;
+
 if (!empty($values)) {
     for ($i = 0; $i < count($values); $i++) {
         $val = $values[$i];
         for ($j = 0; $j < count($val); $j++) {
             $sheet->setCellValueByColumnAndRow($j + 1, $i + 2, $val[$j]);
         }
+        $row = $i + 2;
     }
+    $row += 1;
+    $sheet->setCellValueByColumnAndRow(1, $row, 'Nota: Se presentan las horas registradas en la plataforma, favor tener presente que estas deben ser aprobadas por el jefe de área.');
+    $style = $sheet->getStyle([1, $row, count($cols), $row]);
+    $style->getFont()->setBold(true);
+    $style->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FFFF00');
 }
 
 // Establecer las cabeceras para indicar que el archivo es un archivo Excel

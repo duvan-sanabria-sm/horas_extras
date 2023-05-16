@@ -3,6 +3,8 @@ $(document).ready(async function(){
     let typeGestion = $('#typeGestion').data('type');
     let url;
 
+    console.log('Hola');
+
     switch (typeGestion) {
         case 'gestionJefesGerentes':
             url = '../controller/CRUD.controller.php?action=execute&model=HoraExtra&crud=getListHEGestionAprobador';
@@ -178,7 +180,10 @@ $(document).ready(async function(){
 
             $('#tableBody').html(html);
             var table = $('#dataTable').DataTable({
-                dom: '<"top"if>rt<"clear">',
+                dom: 'Bfrtip',
+                buttons: [
+                    'csv', 'excel'
+                ],
                 responsive: false,
                 scrollY: '80vh',
                 scrollCollapse: false,
