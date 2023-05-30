@@ -58,9 +58,9 @@ class Reporte
             }
             $this->fechaInicio = $object["fechaInicio"];
             $this->fechaFin = $object["fechaFin"];
+            $fecha_creacion = date('Y-m-d H:i:s');
 
-
-            $this->sql = "INSERT INTO dbo.ReportesHE (id_estado, id_ceco, total, id_aprobador, empleado, correoEmpleado, cc, cargo, motivoGeneral, fechaInicio, fechaFin, fechaCreacion) VALUES (:id_estado, :id_ceco, :total, :id_aprobador, :empleado, :correoEmpleado, :cc, :cargo, :motivoGeneral, :fechaInicio, :fechaFin,'" . date('Y-m-d H:i:s') . "')";
+            $this->sql = "INSERT INTO dbo.ReportesHE (id_estado, id_ceco, total, id_aprobador, empleado, correoEmpleado, cc, cargo, motivoGeneral, fechaInicio, fechaFin, fechaCreacion) VALUES (:id_estado, :id_ceco, :total, :id_aprobador, :empleado, :correoEmpleado, :cc, :cargo, :motivoGeneral, :fechaInicio, :fechaFin, CAST(N'" . str_replace(' ', 'T', $fecha_creacion) . "' AS datetime) )";
             $this->connection->beginTransaction();
             $this->result = $this->connection->prepare($this->sql);
 
