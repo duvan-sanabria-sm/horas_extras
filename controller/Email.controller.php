@@ -14,7 +14,7 @@ switch ($_GET['email']) {
         $reporteHE = $_POST['idReporte'];
 
         $Subject = 'Solicitud revision de Horas Extra para ' . $empleado;
-        $body = 'Buen dia, Tiene una solicitud de Horas Extra con el número ' . $reporteHE . ' pendiente por revisar. ' . '. Este mensaje ha sido generado automáticamente.';
+        $body = 'Buen dia, Tiene una solicitud de Horas Extra con el número ' . $reporteHE . ' pendiente por revisar. Este mensaje ha sido generado automáticamente.';
 
         $result = $email->sendEmail($to, $from, $Subject, $body);
         echo $result;

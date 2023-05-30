@@ -16,6 +16,15 @@ class Email
         $this->correo = new PHPMailer(true);
         require_once "LoadConfig.config.php";
         $this->config = LoadConfig::getConfig();
+
+        $this->correo->SMTPDebug = 0;
+        $this->correo->isSMTP();
+        $this->correo->Host = $this->config->HOST_EMAIL;
+        $this->correo->SMTPAuth = true;
+        $this->correo->Username = $this->config->USERNAME_EMAIL;
+        $this->correo->Password = $this->config->PASS_EMAIL;
+        $this->correo->SMTPSecure = "tls";
+        $this->correo->Port = $this->config->PORT_EMAIL;
     }
 
 
@@ -23,15 +32,7 @@ class Email
     {
 
         try {
-            $this->correo->SMTPDebug = 0;
-            $this->correo->isSMTP();
-            $this->correo->Host = $this->config->HOST_EMAIL;
-            $this->correo->SMTPAuth = true;
-            $this->correo->Username = $this->config->USERNAME_EMAIL;
-            $this->correo->Password = $this->config->PASS_EMAIL;
-            $this->correo->SMTPSecure = "tls";
-            $this->correo->Port = $this->config->PORT_EMAIL;
-
+            $this->correo->clearAllRecipients();
             $this->correo->setFrom($this->config->FROM_EMAIL, "Solicitud de Horas Extra");
             $this->correo->addAddress($to);
             $this->correo->addAddress($this->config->FROM_EMAIL);
