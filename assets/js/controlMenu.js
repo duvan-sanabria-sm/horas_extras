@@ -5,6 +5,7 @@ $(document).ready(function(e) {
     estado();
     gestionar();
     gestionRH();
+    generarReporteGeneral();
 });
 
 function reportar(){
@@ -212,6 +213,26 @@ function adminAprobadores(e) {
             $('#result').html(result);
             $(this).prop('disabled', false);
         })
+}
+
+function generarReporteGeneral(e){
+    $('#reporteGeneral').on('click', function(e) {
+        console.log('Click');
+        e.preventDefault();
+        let reporteGeneral = $(this);
+
+        reporteGeneral.prop('disabled', true);
+        reporteGeneral.css('pointer-events', 'none');
+
+        $.when($.ajax('./reporteGeneral/index.view.php'))
+            .then(function(result) {
+                //Cargar HTML
+                reporteGeneral.addClass('menuSelect');
+                reporteGeneral.css('pointer-events', 'auto');
+                $('#result').html(result);
+                reporteGeneral.prop('disabled', false);
+            }) 
+    });
 }
 
 function removeClass() {

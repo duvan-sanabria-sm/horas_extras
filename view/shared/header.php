@@ -56,6 +56,10 @@
                         } 
                     ?>
 
+                    <li>
+                        <a href="#" class="menuItem" id="reporteGeneral">Reporte</a>
+                    </li>
+
                     <li id="user">
                         <span style="font-size: 25px;" class="icon solid fa fa-user-circle fi"></span>
                         <a href="#" id="usuarioLogin"><?php echo $_SESSION['usuario']?></a>
